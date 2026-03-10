@@ -1,0 +1,28 @@
+@theme {
+  /* ── Colors ── */
+
+  /* Brand (Warm Pastel) */
+  --color-brand-pink: #FFDCDC;
+  --color-brand-cream: #FFF2EB;
+  --color-brand-peach: #FFE8CD;
+  --color-brand-salmon: #FFD6BA;
+
+  /* Text */
+  --color-text-primary: #3A2E2A;
+  --color-text-secondary: #6B5B56;
+  --color-text-muted: #9B8B84;
+
+  /* Border */
+  --color-border: #EAD9D0;
+
+  /* Background */
+  --color-bg: #FFFAF7;
+
+  /* ── Font Size ── */
+  --text-xs: 0.75rem;    /* 12px - 힌트, 라벨 */
+  --text-sm: 0.875rem;   /* 14px - 보조 텍스트, 캡션 */
+  --text-base: 1rem;     /* 16px - 기본 본문 */
+  --text-lg: 1.125rem;   /* 18px - 강조 텍스트 */
+  --text-xl: 1.25rem;    /* 20px - 섹션 제목 */
+  --text-2xl: 1.5rem;    /* 24px - 페이지 제목 */
+}

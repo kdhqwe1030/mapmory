@@ -17,6 +17,7 @@
 | 배포, build, CI/CD, 환경변수 | `context/devops.md` |
 | 새 기능 추가, 신규 구현 | `context/project.md` + 해당 영역 |
 | `src/app/` 파일 수정 | `context/frontend.md` |
+| 파일 생성, 폴더 구조, 위치 결정 | `context/folder-structure.md` |
 | 항상 | `context/project.md` (프로젝트 개요) |
 
 ### 작업 시작 전 체크리스트
@@ -127,4 +128,5 @@
 | 작게 나누기 | 한 번에 1~2개 작업만 진행한다 |
 | 체크리스트 | 완료 후 tasks/ 파일을 업데이트한다 |
 | 과잉 금지 | 요청된 것만 한다. 불필요한 파일/추상화 금지 |
+| build 금지 | 명시적으로 요청하지 않으면 build/lint/tsc 실행 금지 |
 | 보고 | 작업 완료 후 수정 내용과 확인 항목을 보고한다 |
