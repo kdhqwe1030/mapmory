@@ -11,6 +11,8 @@
   "dependencies": {
     "@tanstack/react-query": "^5.90.21",
     "@tanstack/react-query-devtools": "^5.91.3",
+    "@types/navermaps": "^3.9.1",
+    "axios": "^1.13.6",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
