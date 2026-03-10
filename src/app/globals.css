@@ -1,7 +1,10 @@
 @import "tailwindcss";
 @import "../styles/theme.css";
 
+html,
 body {
+  height: 100%;
+  overflow: hidden;
   background: var(--color-bg);
   color: var(--color-text-primary);
 }
