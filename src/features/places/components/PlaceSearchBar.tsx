@@ -49,6 +49,7 @@ export function PlaceSearchBar({ onSelectPlace, currentPosition }: PlaceSearchBa
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [isOpen, setIsOpen] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
   const throttleRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastCallRef = useRef(0)
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -117,6 +118,53 @@ export function PlaceSearchBar({ onSelectPlace, currentPosition }: PlaceSearchBa
     }
   }
 
+  // 엔터/검색 클릭 시 첫 번째 결과 자동 선택
+  const handleSubmit = async () => {
+    if (!query.trim()) return
+    if (results.length > 0) {
+      setQuery(results[0].title)
+      setIsOpen(false)
+      onSelectPlace(results[0])
+      return
+    }
+    // 결과가 없으면 즉시 검색 후 첫 번째 선택
+    try {
+      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`)
+      const data = await res.json()
+      const items: SearchResult[] = (data.items ?? []).map((item: Record<string, string>) => ({
+        title: stripHtml(item.title ?? ''),
+        address: item.address ?? '',
+        roadAddress: item.roadAddress ?? '',
+        category: item.category ?? '',
+        description: item.description ?? '',
+        telephone: item.telephone ?? '',
+        mapx: item.mapx ?? '',
+        mapy: item.mapy ?? '',
+        link: item.link ?? '',
+      }))
+      setResults(items)
+      if (items.length > 0) {
+        setQuery(items[0].title)
+        setIsOpen(false)
+        onSelectPlace(items[0])
+      }
+    } catch {
+      // noop
+    }
+  }
+
+  // 포커스 시 기존 텍스트가 있으면 결과 다시 표시
+  const handleFocus = () => {
+    if (!query.trim()) return
+    if (results.length > 0) {
+      setIsOpen(true)
+      return
+    }
+    // 결과가 없으면 즉시 재검색
+    lastCallRef.current = 0 // throttle 초기화
+    search(query)
+  }
+
   const getDistance = (item: SearchResult): string | null => {
     if (!currentPosition || !item.mapx || !item.mapy) return null
     const lng = parseInt(item.mapx) / 1e7
@@ -127,13 +175,25 @@ export function PlaceSearchBar({ onSelectPlace, currentPosition }: PlaceSearchBa
   }
 
   return (
-    <div ref={wrapperRef} className="absolute top-4 left-4 right-4 z-10">
+    <div
+      ref={wrapperRef}
+      className="absolute left-4 right-4 z-[200]"
+      style={{
+        top: isFocused || isOpen ? '8px' : '16px',
+        transition: 'top 0.2s ease',
+      }}
+    >
       <div className="flex items-center gap-3 bg-white/90 backdrop-blur-sm rounded-full px-4 py-3 shadow-[0_4px_20px_rgba(58,46,42,0.12)]">
-        <SearchRounded sx={{ fontSize: 20, color: '#9B8B84', flexShrink: 0 }} />
+        <button onClick={handleSubmit} className="flex-shrink-0">
+          <SearchRounded sx={{ fontSize: 20, color: '#9B8B84' }} />
+        </button>
         <input
           type="text"
           value={query}
           onChange={handleChange}
+          onFocus={() => { setIsFocused(true); handleFocus() }}
+          onBlur={() => setIsFocused(false)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
           placeholder="장소를 검색해보세요"
           className="flex-1 text-sm text-[#3A2E2A] placeholder:text-[#9B8B84] outline-none bg-transparent"
         />
