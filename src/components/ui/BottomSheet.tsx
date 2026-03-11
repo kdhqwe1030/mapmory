@@ -6,7 +6,7 @@ import ArrowBackRounded from "@mui/icons-material/ArrowBackRounded";
 const PEEK_HEIGHT = 280;
 const FULL_THRESHOLD = 0.8;
 
-export function BottomSheet({ children }: { children: React.ReactNode }) {
+export function BottomSheet({ children, onBack }: { children: React.ReactNode; onBack?: () => void }) {
   const [height, setHeight] = useState(PEEK_HEIGHT);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -112,13 +112,32 @@ export function BottomSheet({ children }: { children: React.ReactNode }) {
         </div>
       ) : (
         <div
-          className="flex justify-center pt-3 pb-1 flex-shrink-0 touch-none select-none cursor-grab active:cursor-grabbing"
+          className="flex items-center pt-3 pb-1 flex-shrink-0 touch-none select-none"
           onTouchStart={(e) => onDragStart(e.touches[0].clientY)}
           onTouchMove={(e) => onDragMove(e.touches[0].clientY)}
           onTouchEnd={onDragEnd}
           onMouseDown={(e) => onDragStart(e.clientY)}
         >
-          <div className="w-10 h-1 rounded-full bg-[#EAD9D0]" />
+          {onBack ? (
+            <div className="flex items-center w-full px-4">
+              <button
+                onClick={onBack}
+                onMouseDown={(e) => e.stopPropagation()}
+                className="text-sm text-[#6B5B56] hover:text-[#3A2E2A] flex items-center gap-1 flex-shrink-0"
+              >
+                <ArrowBackRounded sx={{ fontSize: 18 }} />
+                <span>뒤로</span>
+              </button>
+              <div className="flex-1 flex justify-center cursor-grab active:cursor-grabbing">
+                <div className="w-10 h-1 rounded-full bg-[#EAD9D0]" />
+              </div>
+              <div className="w-12" />
+            </div>
+          ) : (
+            <div className="flex-1 flex justify-center cursor-grab active:cursor-grabbing">
+              <div className="w-10 h-1 rounded-full bg-[#EAD9D0]" />
+            </div>
+          )}
         </div>
       )}
       <div className="flex-1 overflow-y-auto overscroll-contain">
