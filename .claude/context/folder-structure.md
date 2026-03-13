@@ -15,90 +15,66 @@
 
 ## 전체 구조
 
+### 현재 실제 구조 (2026-03-13 기준)
 ```
 src/
-├── app/                        # Next.js App Router (라우트만)
+├── app/                        # Next.js App Router
 │   ├── layout.tsx
-│   ├── page.tsx
-│   └── globals.css
+│   ├── page.tsx                # 메인 지도 화면 (전체 상태 관리)
+│   ├── globals.css
+│   └── api/
+│       ├── search/route.ts     # Naver Local Search API proxy
+│       └── images/route.ts     # Naver Image Search API proxy
 
 ├── components/                 # 완전 공통 UI (feature 무관)
-│   ├── ui/                     # 기본 UI 컴포넌트
-│   │   ├── Button.tsx
-│   │   ├── BottomSheet.tsx
-│   │   ├── Chip.tsx
-│   │   └── Modal.tsx
-│   └── layout/                 # 레이아웃 컴포넌트
-│       ├── Header.tsx
-│       └── PageContainer.tsx
+│   ├── ui/
+│   │   ├── BottomSheet.tsx     # 드래그/전체화면 바텀시트
+│   │   ├── FilterDropdown.tsx  # all/visited/want 필터
+│   │   └── StatusBadge.tsx     # want/visited 뱃지 (현재 미사용)
+│   └── Providers.tsx
 
 ├── features/                   # 기능별 모듈
 │   ├── map/
-│   │   ├── components/         # 지도 전용 컴포넌트
-│   │   │   ├── MapView.tsx
-│   │   │   ├── MapMarker.tsx
-│   │   │   └── CurrentLocationButton.tsx
-│   │   ├── hooks/              # 지도 전용 훅
-│   │   │   ├── useNaverMap.ts
-│   │   │   └── useMapCenter.ts
-│   │   ├── utils/              # 지도 유틸
-│   │   │   └── marker.ts
+│   │   ├── components/
+│   │   │   └── MapView.tsx     # Naver Map Script + div
+│   │   ├── hooks/
+│   │   │   └── useNaverMap.ts  # 지도 초기화, 마커, panTo
 │   │   └── types/
 │   │       └── map.types.ts
 │   │
-│   ├── places/
+│   └── places/
+│       └── components/
+│           ├── PlaceCard.tsx        # 저장 장소 카드 (Mock용)
+│           ├── PlaceDetail.tsx      # 검색 장소 상세 (이미지/주소/전화)
+│           └── PlaceSearchBar.tsx   # 검색바 + 드롭다운 결과
+
+└── lib/
+    └── naver-map.ts            # MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM
+```
+
+### 2단계에서 추가될 구조 (예정)
+```
+src/
+├── features/
+│   ├── categories/             # 카테고리 관리
 │   │   ├── components/
-│   │   │   ├── PlaceCard.tsx
-│   │   │   ├── PlaceList.tsx
-│   │   │   ├── PlaceSearchBar.tsx
-│   │   │   └── SavedPlaceButton.tsx
 │   │   ├── hooks/
-│   │   │   ├── usePlaceSearch.ts
-│   │   │   └── useSavedPlaces.ts
-│   │   ├── services/
-│   │   │   └── place.service.ts
 │   │   └── types/
-│   │       └── place.types.ts
-│   │
-│   ├── filters/
-│   │   ├── components/
-│   │   │   ├── FilterChipList.tsx
-│   │   │   └── FilterEditor.tsx
-│   │   ├── hooks/
-│   │   │   └── useFilters.ts
-│   │   └── types/
-│   │       └── filter.types.ts
-│   │
-│   └── visits/
+│   └── todos/                  # TODO 리스트
 │       ├── components/
-│       │   └── VisitBadge.tsx
 │       ├── hooks/
-│       │   └── useVisits.ts
 │       └── types/
-│           └── visit.types.ts
-
-├── hooks/                      # 완전 공통 훅 (feature 무관)
-│   ├── useDebounce.ts
-│   └── useModal.ts
-
-├── lib/                        # 외부 라이브러리 초기화 및 설정
-│   ├── naver-map.ts
-│   ├── utils.ts
-│   └── constants.ts
-
-├── services/                   # 공통 API 클라이언트
-│   └── api-client.ts
-
+│
 ├── store/                      # Zustand 전역 스토어
 │   ├── place.store.ts
-│   ├── filter.store.ts
-│   └── map.store.ts
-
-├── types/                      # 공통 타입
-│   └── common.ts
-
-└── styles/
-    └── theme.css
+│   ├── category.store.ts
+│   └── todo.store.ts
+│
+└── app/
+    ├── categories/             # 카테고리 관리 페이지
+    │   └── page.tsx
+    └── todos/                  # TODO 관리 페이지
+        └── page.tsx
 ```
 
 ---
