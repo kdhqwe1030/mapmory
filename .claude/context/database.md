@@ -12,6 +12,8 @@
 |---|---|---|
 | id | BIGSERIAL PK | 자동 증가 |
 | name | TEXT NOT NULL | 카테고리 이름 |
+| icon | TEXT NOT NULL | 카테고리 아이콘 (이모지, default: 'default') |
+| color | TEXT NOT NULL | 카테고리 색상 (default: '#FFD6BA') |
 | created_at | TIMESTAMPTZ | 생성일 (default: now()) |
 
 ---
@@ -23,6 +25,8 @@
 | external_id | TEXT | Naver Local Search API의 장소 ID |
 | name | TEXT NOT NULL | 장소 이름 |
 | address | TEXT | 주소 |
+| lat | DOUBLE PRECISION | 위도 (nullable) |
+| lng | DOUBLE PRECISION | 경도 (nullable) |
 | created_at | TIMESTAMPTZ | 생성일 |
 
 - `external_id`에 인덱스 존재 (`idx_places_external_id`)
