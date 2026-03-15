@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from 'react'
 import SearchRounded from '@mui/icons-material/SearchRounded'
 import LocationOnRounded from '@mui/icons-material/LocationOnRounded'
+import CloseRounded from '@mui/icons-material/CloseRounded'
 
 export interface SearchResult {
   title: string
@@ -24,6 +25,7 @@ interface LatLng {
 interface PlaceSearchBarProps {
   onSelectPlace: (place: SearchResult) => void
   currentPosition: LatLng | null
+  onClear?: () => void
 }
 
 function stripHtml(html: string) {
@@ -45,7 +47,7 @@ function formatDistance(meters: number): string {
   return `${(meters / 1000).toFixed(1)}km`
 }
 
-export function PlaceSearchBar({ onSelectPlace, currentPosition }: PlaceSearchBarProps) {
+export function PlaceSearchBar({ onSelectPlace, currentPosition, onClear }: PlaceSearchBarProps) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [isOpen, setIsOpen] = useState(false)
@@ -197,6 +199,19 @@ export function PlaceSearchBar({ onSelectPlace, currentPosition }: PlaceSearchBa
           placeholder="장소를 검색해보세요"
           className="flex-1 text-sm text-[#3A2E2A] placeholder:text-[#9B8B84] outline-none bg-transparent"
         />
+        {query && (
+          <button
+            onClick={() => {
+              setQuery('')
+              setResults([])
+              setIsOpen(false)
+              onClear?.()
+            }}
+            className="flex-shrink-0"
+          >
+            <CloseRounded sx={{ fontSize: 18, color: '#9B8B84' }} />
+          </button>
+        )}
       </div>
 
       {isOpen && results.length > 0 && (

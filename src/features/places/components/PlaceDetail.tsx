@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import OpenInNewRounded from '@mui/icons-material/OpenInNewRounded'
 import PhoneRounded from '@mui/icons-material/PhoneRounded'
 import LocationOnRounded from '@mui/icons-material/LocationOnRounded'
+import { useCategories } from '@/src/features/categories/hooks/useCategories'
+import { useSavedPlaces, useSavePlace, useRemoveSavedPlace } from '@/src/features/places/hooks/useSavedPlaces'
 
 export interface SelectedPlace {
   title: string
@@ -23,6 +25,15 @@ interface PlaceDetailProps {
 
 export function PlaceDetail({ place }: PlaceDetailProps) {
   const [images, setImages] = useState<string[]>([])
+
+  const externalId = `${place.mapx}_${place.mapy}`
+  const lat = parseInt(place.mapy) / 1e7
+  const lng = parseInt(place.mapx) / 1e7
+
+  const { data: categories, isLoading: categoriesLoading } = useCategories()
+  const { data: savedPlaces } = useSavedPlaces()
+  const savePlace = useSavePlace()
+  const removePlace = useRemoveSavedPlace()
 
   useEffect(() => {
     const lastCategory = place.category ? (place.category.split('>').pop()?.trim() ?? '') : ''
@@ -103,6 +114,43 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
         )}
         {place.description && (
           <p className="text-sm text-[#9B8B84] leading-relaxed mt-1">{place.description}</p>
+        )}
+      </div>
+
+      {/* 카테고리 저장 */}
+      <div className="mt-4 pt-4 border-t border-[#EAD9D0]">
+        <p className="text-xs text-[#9B8B84] mb-2">카테고리에 저장</p>
+        {categoriesLoading ? (
+          <p className="text-xs text-[#9B8B84]">불러오는 중...</p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {(categories ?? []).map((cat) => {
+              const savedRecord = (savedPlaces ?? []).find(
+                (sp) => sp.places?.external_id === externalId && sp.category_id === cat.id
+              );
+              const isSaved = !!savedRecord;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    if (isSaved) {
+                      removePlace.mutate(savedRecord.id);
+                    } else {
+                      savePlace.mutate({ name: place.title, address: place.roadAddress || place.address, external_id: externalId, lat, lng, category_id: cat.id });
+                    }
+                  }}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                    isSaved
+                      ? 'bg-[#FFDCDC] border-[#FFDCDC] text-[#3A2E2A]'
+                      : 'bg-white border-[#EAD9D0] text-[#6B5B56]'
+                  }`}
+                >
+                  <span>{cat.icon === 'default' ? '📁' : cat.icon}</span>
+                  <span>{cat.name}</span>
+                </button>
+              );
+            })}
+          </div>
         )}
       </div>
     </div>
