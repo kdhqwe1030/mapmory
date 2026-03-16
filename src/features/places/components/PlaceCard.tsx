@@ -58,7 +58,7 @@ export function PlaceCard({ name, category, address, status, emoji = '🗺️' }
           {name}
           <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${statusDot[status]}`} />
         </p>
-        <p className="text-xs text-[#6B5B56] mt-0.5">{category}</p>
+        <p className="text-xs text-[#6B5B56] mt-0.5">{emoji} {category}</p>
         <p className="text-xs text-[#9B8B84] truncate mt-0.5">{address}</p>
       </div>
     </div>
