@@ -30,6 +30,7 @@ interface PlaceDetailProps {
 export function PlaceDetail({ place }: PlaceDetailProps) {
   const [images, setImages] = useState<string[]>([]);
   const [imagesLoading, setImagesLoading] = useState(true);
+  const [failedUrls, setFailedUrls] = useState<Set<string>>(new Set());
 
   const externalId = `${place.mapx}_${place.mapy}`;
   const lat = parseInt(place.mapy) / 1e7;
@@ -43,6 +44,7 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
   useEffect(() => {
     setImagesLoading(true);
     setImages([]);
+    setFailedUrls(new Set());
     const lastCategory = place.category
       ? (place.category.split(">").pop()?.trim() ?? "")
       : "";
@@ -85,19 +87,14 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
         </div>
       ) : images.length > 0 ? (
         <div className="flex gap-2 overflow-x-auto pb-1 mb-4 scrollbar-hide">
-          {images.map((src, i) => (
+          {images.filter((src) => !failedUrls.has(src)).map((src) => (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              key={i}
+              key={src}
               src={src}
               alt=""
               className="w-[120px] h-[120px] rounded-xl object-cover flex-shrink-0"
-              onError={(e) => {
-                const img = e.target as HTMLImageElement;
-                if (img.parentElement?.contains(img)) {
-                  img.parentElement.removeChild(img);
-                }
-              }}
+              onError={() => setFailedUrls((prev) => new Set([...prev, src]))}
             />
           ))}
         </div>
