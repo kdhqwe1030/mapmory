@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
-  const { name, address, external_id, lat, lng } = await request.json()
+  const { name, address, external_id, lat, lng, naver_category } = await request.json()
 
   // Check if place already exists
   const { data: existing } = await supabase
@@ -12,11 +12,22 @@ export async function POST(request: Request) {
     .eq('external_id', external_id)
     .single()
 
-  if (existing) return NextResponse.json(existing)
+  if (existing) {
+    if (!existing.naver_category && naver_category) {
+      const { data: updated } = await supabase
+        .from('places')
+        .update({ naver_category })
+        .eq('id', existing.id)
+        .select()
+        .single()
+      return NextResponse.json(updated ?? existing)
+    }
+    return NextResponse.json(existing)
+  }
 
   const { data, error } = await supabase
     .from('places')
-    .insert({ name, address, external_id, lat, lng })
+    .insert({ name, address, external_id, lat, lng, naver_category })
     .select()
     .single()
 

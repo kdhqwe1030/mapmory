@@ -96,7 +96,9 @@ export function PlaceSearchBar({ onSelectPlace, currentPosition, onClear }: Plac
       return
     }
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`)
+      const currentPos = currentPositionRef.current
+      const coordParams = currentPos ? `&lat=${currentPos.lat}&lng=${currentPos.lng}` : ''
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}${coordParams}`)
       const data = await res.json()
       const items: SearchResult[] = (data.items ?? []).map((item: Record<string, string>) => ({
         title: stripHtml(item.title ?? ''),
@@ -168,7 +170,9 @@ export function PlaceSearchBar({ onSelectPlace, currentPosition, onClear }: Plac
     }
     // 결과가 없으면 즉시 검색 후 첫 번째 선택
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`)
+      const currentPos = currentPositionRef.current
+      const coordParams = currentPos ? `&lat=${currentPos.lat}&lng=${currentPos.lng}` : ''
+      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}${coordParams}`)
       const data = await res.json()
       const items: SearchResult[] = (data.items ?? []).map((item: Record<string, string>) => ({
         title: stripHtml(item.title ?? ''),
