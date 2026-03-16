@@ -29,6 +29,7 @@ interface PlaceDetailProps {
 
 export function PlaceDetail({ place }: PlaceDetailProps) {
   const [images, setImages] = useState<string[]>([]);
+  const [imagesLoading, setImagesLoading] = useState(true);
 
   const externalId = `${place.mapx}_${place.mapy}`;
   const lat = parseInt(place.mapy) / 1e7;
@@ -40,6 +41,8 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
   const removePlace = useRemoveSavedPlace();
 
   useEffect(() => {
+    setImagesLoading(true);
+    setImages([]);
     const lastCategory = place.category
       ? (place.category.split(">").pop()?.trim() ?? "")
       : "";
@@ -51,8 +54,11 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
           .map((item: Record<string, string>) => item.link ?? "")
           .filter(Boolean);
         setImages(urls);
+        setImagesLoading(false);
       })
-      .catch(() => {});
+      .catch(() => {
+        setImagesLoading(false);
+      });
   }, [place.title, place.category]);
   console.log(place);
   return (
@@ -68,7 +74,16 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
       </div>
 
       {/* 사진 가로 스크롤 */}
-      {images.length > 0 ? (
+      {imagesLoading ? (
+        <div className="flex gap-2 overflow-x-auto pb-1 mb-4 scrollbar-hide">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="w-[120px] h-[120px] rounded-xl bg-[#F5EDE8] animate-pulse flex-shrink-0"
+            />
+          ))}
+        </div>
+      ) : images.length > 0 ? (
         <div className="flex gap-2 overflow-x-auto pb-1 mb-4 scrollbar-hide">
           {images.map((src, i) => (
             // eslint-disable-next-line @next/next/no-img-element
@@ -78,9 +93,10 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
               alt=""
               className="w-[120px] h-[120px] rounded-xl object-cover flex-shrink-0"
               onError={(e) => {
-                (e.target as HTMLImageElement).parentElement?.removeChild(
-                  e.target as HTMLImageElement,
-                );
+                const img = e.target as HTMLImageElement;
+                if (img.parentElement?.contains(img)) {
+                  img.parentElement.removeChild(img);
+                }
               }}
             />
           ))}
