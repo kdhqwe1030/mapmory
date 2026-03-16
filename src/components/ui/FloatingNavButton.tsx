@@ -18,12 +18,12 @@ export function FloatingNavButton() {
       <span
         className={`absolute transition-all duration-200 ${isMapPage ? "opacity-100 scale-100" : "opacity-0 scale-75"}`}
       >
-        <MenuBookRounded sx={{ fontSize: 24, color: "#3A2E2A" }} />
+        <MenuBookRounded sx={{ fontSize: 24, color: "#7A6F6A" }} />
       </span>
       <span
         className={`absolute transition-all duration-200 ${!isMapPage ? "opacity-100 scale-100" : "opacity-0 scale-75"}`}
       >
-        <MapRounded sx={{ fontSize: 24, color: "#3A2E2A" }} />
+        <MapRounded sx={{ fontSize: 24, color: "#7A6F6A" }} />
       </span>
     </Link>
   );
