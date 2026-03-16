@@ -233,6 +233,7 @@ export default function Home() {
                     ? "📁"
                     : (sp.categories?.icon ?? "📍")
                 }
+                naverCategory={sp.places.naver_category ?? undefined}
               />
             </button>
           ))
