@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { Providers } from "../components/Providers";
@@ -11,6 +11,16 @@ const geistSans = Geist({
 export const metadata: Metadata = {
   title: "Mapmory",
   description: "지도 위에 데이트 추억을 쌓아가는 서비스",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Mapmory",
+  },
+  themeColor: "#FFDCDC",
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 export default function RootLayout({
