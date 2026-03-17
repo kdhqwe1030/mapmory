@@ -10,6 +10,7 @@ interface PlaceCardProps {
   address: string
   status: Status
   emoji?: string
+  naverCategory?: string
 }
 
 const statusDot: Record<Status, string> = {
@@ -17,7 +18,7 @@ const statusDot: Record<Status, string> = {
   want: 'bg-[#FFDCDC]',
 }
 
-export function PlaceCard({ name, category, address, status, emoji = '🗺️' }: PlaceCardProps) {
+export function PlaceCard({ name, category, address, status, emoji = '🗺️', naverCategory }: PlaceCardProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null)
 
   useEffect(() => {
@@ -58,8 +59,11 @@ export function PlaceCard({ name, category, address, status, emoji = '🗺️' }
           {name}
           <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${statusDot[status]}`} />
         </p>
-        <p className="text-xs text-[#6B5B56] mt-0.5">{category}</p>
+        <p className="text-xs text-[#6B5B56] mt-0.5">{emoji} {category}</p>
         <p className="text-xs text-[#9B8B84] truncate mt-0.5">{address}</p>
+        {naverCategory && (
+          <p className="text-xs text-[#9B8B84] truncate mt-0.5">{naverCategory}</p>
+        )}
       </div>
     </div>
   )

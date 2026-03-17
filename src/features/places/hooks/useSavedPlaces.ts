@@ -14,6 +14,7 @@ export interface SavedPlaceRecord {
     lat: number | null;
     lng: number | null;
     external_id: string | null;
+    naver_category: string | null;
   };
   categories: {
     id: number;
@@ -44,6 +45,7 @@ export function useSavePlace() {
       external_id: string;
       lat: number;
       lng: number;
+      naver_category: string;
       category_id: number;
     }) => {
       // 1. upsert place
@@ -53,6 +55,7 @@ export function useSavePlace() {
         external_id: body.external_id,
         lat: body.lat,
         lng: body.lng,
+        naver_category: body.naver_category,
       });
       // 2. save to category
       const { data: saved } = await api.post("/saved-places", {

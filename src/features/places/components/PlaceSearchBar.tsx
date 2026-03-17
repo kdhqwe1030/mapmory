@@ -55,6 +55,29 @@ export function PlaceSearchBar({ onSelectPlace, currentPosition, onClear }: Plac
   const throttleRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastCallRef = useRef(0)
   const wrapperRef = useRef<HTMLDivElement>(null)
+  const currentPositionRef = useRef(currentPosition)
+
+  useEffect(() => {
+    currentPositionRef.current = currentPosition
+  }, [currentPosition])
+
+  useEffect(() => {
+    if (!currentPosition || results.length === 0) return
+    setResults(prev => {
+      const sorted = [...prev].sort((a, b) => {
+        const latA = parseInt(a.mapy) / 1e7
+        const lngA = parseInt(a.mapx) / 1e7
+        const latB = parseInt(b.mapy) / 1e7
+        const lngB = parseInt(b.mapx) / 1e7
+        if (isNaN(latA) || isNaN(lngA)) return 1
+        if (isNaN(latB) || isNaN(lngB)) return -1
+        const distA = haversineDistance(currentPosition.lat, currentPosition.lng, latA, lngA)
+        const distB = haversineDistance(currentPosition.lat, currentPosition.lng, latB, lngB)
+        return distA - distB
+      })
+      return sorted
+    })
+  }, [currentPosition])
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -73,7 +96,9 @@ export function PlaceSearchBar({ onSelectPlace, currentPosition, onClear }: Plac
       return
     }
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`)
+      const currentPos = currentPositionRef.current
+      const coordParams = currentPos ? `&lat=${currentPos.lat}&lng=${currentPos.lng}` : ''
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}${coordParams}`)
       const data = await res.json()
       const items: SearchResult[] = (data.items ?? []).map((item: Record<string, string>) => ({
         title: stripHtml(item.title ?? ''),
@@ -86,6 +111,20 @@ export function PlaceSearchBar({ onSelectPlace, currentPosition, onClear }: Plac
         mapy: item.mapy ?? '',
         link: item.link ?? '',
       }))
+      const pos = currentPositionRef.current
+      if (pos) {
+        items.sort((a, b) => {
+          const latA = parseInt(a.mapy) / 1e7
+          const lngA = parseInt(a.mapx) / 1e7
+          const latB = parseInt(b.mapy) / 1e7
+          const lngB = parseInt(b.mapx) / 1e7
+          if (isNaN(latA) || isNaN(lngA)) return 1
+          if (isNaN(latB) || isNaN(lngB)) return -1
+          const distA = haversineDistance(pos.lat, pos.lng, latA, lngA)
+          const distB = haversineDistance(pos.lat, pos.lng, latB, lngB)
+          return distA - distB
+        })
+      }
       setResults(items)
       setIsOpen(items.length > 0)
     } catch {
@@ -131,7 +170,9 @@ export function PlaceSearchBar({ onSelectPlace, currentPosition, onClear }: Plac
     }
     // 결과가 없으면 즉시 검색 후 첫 번째 선택
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`)
+      const currentPos = currentPositionRef.current
+      const coordParams = currentPos ? `&lat=${currentPos.lat}&lng=${currentPos.lng}` : ''
+      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}${coordParams}`)
       const data = await res.json()
       const items: SearchResult[] = (data.items ?? []).map((item: Record<string, string>) => ({
         title: stripHtml(item.title ?? ''),
@@ -215,7 +256,7 @@ export function PlaceSearchBar({ onSelectPlace, currentPosition, onClear }: Plac
       </div>
 
       {isOpen && results.length > 0 && (
-        <div className="mt-2 bg-white rounded-2xl shadow-[0_4px_20px_rgba(58,46,42,0.12)] overflow-hidden">
+        <div className="mt-2 bg-white rounded-2xl shadow-[0_4px_20px_rgba(58,46,42,0.12)] max-h-[300px] overflow-y-auto">
           {results.map((item, i) => {
             const dist = getDistance(item)
             return (
