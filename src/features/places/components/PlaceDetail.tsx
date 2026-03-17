@@ -6,6 +6,7 @@ import PhoneRounded from "@mui/icons-material/PhoneRounded";
 import LocationOnRounded from "@mui/icons-material/LocationOnRounded";
 import DeleteOutlineRounded from "@mui/icons-material/DeleteOutlineRounded";
 import { useCategories } from "@/src/features/categories/hooks/useCategories";
+import { getCategoryTextColor } from "@/src/features/categories/categoryColors";
 import {
   useSavedPlaces,
   useSavePlace,
@@ -222,11 +223,20 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
                       });
                     }
                   }}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all"
+                  style={
                     isSaved
-                      ? "bg-[#FFDCDC] border-[#FFDCDC] text-[#3A2E2A]"
-                      : "bg-white border-[#EAD9D0] text-[#6B5B56]"
-                  }`}
+                      ? {
+                          background: cat.color ?? "#FFDCDC",
+                          borderColor: cat.color ?? "#FFDCDC",
+                          color: getCategoryTextColor(cat.color ?? "#FFDCDC"),
+                        }
+                      : {
+                          background: "white",
+                          borderColor: "#EAD9D0",
+                          color: "#6B5B56",
+                        }
+                  }
                 >
                   <span>{cat.icon === "default" ? "📁" : cat.icon}</span>
                   <span>{cat.name}</span>

@@ -13,8 +13,7 @@ import {
   useDeleteCategory,
   type Category,
 } from "@/src/features/categories/hooks/useCategories";
-
-const PRESET_COLORS = ["#FFDCDC", "#FFF9B0", "#B8F0C8", "#B8DCFF", "#E8C8FF"];
+import { PRESET_COLORS } from "@/src/features/categories/categoryColors";
 
 const extractEmoji = (value: string): string => {
   const match = value.match(/\p{Extended_Pictographic}/u);

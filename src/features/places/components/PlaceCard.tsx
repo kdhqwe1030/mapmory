@@ -1,40 +1,54 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
+import { getCategoryTextColor } from "@/src/features/categories/categoryColors";
 
-type Status = 'want' | 'visited'
+type Status = "want" | "visited";
 
 interface PlaceCardProps {
-  name: string
-  category: string
-  address: string
-  status: Status
-  emoji?: string
-  naverCategory?: string
+  name: string;
+  category: string;
+  address: string;
+  status: Status;
+  emoji?: string;
+  naverCategory?: string;
+  categoryColor?: string;
 }
 
 const statusDot: Record<Status, string> = {
-  visited: 'bg-[#4CAF82]',
-  want: 'bg-[#FFDCDC]',
-}
+  visited: "bg-[#4CAF82]",
+  want: "bg-[#FFDCDC]",
+};
 
-export function PlaceCard({ name, category, address, status, emoji = '🗺️', naverCategory }: PlaceCardProps) {
-  const [imageUrl, setImageUrl] = useState<string | null>(null)
+export function PlaceCard({
+  name,
+  category,
+  address,
+  status,
+  emoji = "🗺️",
+  naverCategory,
+  categoryColor,
+}: PlaceCardProps) {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false
-    const lastCategory = category ? (category.split('>').pop()?.trim() ?? '') : ''
-    const q = lastCategory ? `${name} ${lastCategory}` : name
+    let cancelled = false;
+    const lastCategory = category
+      ? (category.split(">").pop()?.trim() ?? "")
+      : "";
+    const q = lastCategory ? `${name} ${lastCategory}` : name;
     fetch(`/api/images?q=${encodeURIComponent(q)}`)
       .then((r) => r.json())
       .then((data) => {
-        if (cancelled) return
-        const first = data.items?.[0]?.link
-        if (first) setImageUrl(first)
+        if (cancelled) return;
+        const first = data.items?.[0]?.link;
+        if (first) setImageUrl(first);
       })
-      .catch(() => {})
-    return () => { cancelled = true }
-  }, [name, category])
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [name, category]);
 
   return (
     <div className="flex items-center gap-3 p-3 rounded-2xl bg-white shadow-sm">
@@ -57,14 +71,26 @@ export function PlaceCard({ name, category, address, status, emoji = '🗺️', 
       <div className="flex-1 min-w-0">
         <p className="font-semibold text-[#3A2E2A] text-sm truncate flex items-center gap-1.5">
           {name}
-          <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${statusDot[status]}`} />
+          <span
+            className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${statusDot[status]}`}
+          />
         </p>
-        <p className="text-xs text-[#6B5B56] mt-0.5">{emoji} {category}</p>
-        <p className="text-xs text-[#9B8B84] truncate mt-0.5">{address}</p>
         {naverCategory && (
-          <p className="text-xs text-[#9B8B84] truncate mt-0.5">{naverCategory}</p>
+          <p className="text-xs text-[#9B8B84] truncate mt-0.5">
+            {naverCategory}
+          </p>
         )}
+        <p className="text-xs text-[#9B8B84] truncate mt-0.5">{address}</p>
+        <span
+          className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-xs font-medium"
+          style={{
+            background: categoryColor ?? "#FFDCDC",
+            color: getCategoryTextColor(categoryColor ?? "#FFDCDC"),
+          }}
+        >
+          {emoji} {category}
+        </span>
       </div>
     </div>
-  )
+  );
 }
