@@ -176,7 +176,7 @@ export default function Home() {
         );
         return { ...sp, _dist: d };
       })
-      .filter((sp) => sp._dist <= 5000)
+      .filter((sp) => sp._dist <= 10000)
       .sort((a, b) => a._dist - b._dist);
   }, [savedPlaces, currentPosition]);
 
@@ -274,6 +274,7 @@ export default function Home() {
                 }
                 naverCategory={sp.places.naver_category ?? undefined}
                 categoryColor={sp.categories?.color ?? "#FFDCDC"}
+                distance={"_dist" in sp ? (sp._dist as number) : undefined}
               />
             </button>
           ))
