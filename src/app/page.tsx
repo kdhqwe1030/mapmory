@@ -50,6 +50,25 @@ export default function Home() {
   );
   const [recenterCounter, setRecenterCounter] = useState(0);
   const [showRedMarker, setShowRedMarker] = useState(true);
+  const [sidebarWidth, setSidebarWidth] = useState(320);
+
+  const handleResizeStart = useCallback((e: React.MouseEvent) => {
+    const startX = e.clientX;
+    const startWidth = sidebarWidth;
+    document.body.classList.add("select-none");
+
+    const onMove = (e: MouseEvent) => {
+      const newWidth = startWidth + (e.clientX - startX);
+      setSidebarWidth(Math.max(240, Math.min(600, newWidth)));
+    };
+    const onUp = () => {
+      document.body.classList.remove("select-none");
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }, [sidebarWidth]);
   const [selectedSavedPlaceId, setSelectedSavedPlaceId] = useState<
     number | null
   >(null);
@@ -286,7 +305,15 @@ export default function Home() {
   return (
     <main className="flex h-screen w-screen overflow-hidden">
       {/* Desktop sidebar - hidden on mobile */}
-      <aside className="hidden md:flex md:flex-col w-80 shrink-0 h-full bg-white shadow-[2px_0_24px_rgba(58,46,42,0.08)] z-400 overflow-hidden">
+      <aside
+        className="hidden md:flex md:flex-col relative shrink-0 h-full bg-white shadow-[2px_0_24px_rgba(58,46,42,0.08)] z-400 overflow-hidden"
+        style={{ width: sidebarWidth }}
+      >
+        {/* 리사이즈 핸들 */}
+        <div
+          onMouseDown={handleResizeStart}
+          className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-[#FFDCDC] transition-colors z-10"
+        />
         {selectedPlace && (
           <div className="flex items-center px-4 pt-4 pb-3 shrink-0 border-b border-border">
             <button
