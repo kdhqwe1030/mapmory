@@ -8,6 +8,13 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export const metadata: Metadata = {
   title: "Mapmory",
   description: "지도 위에 데이트 추억을 쌓아가는 서비스",
