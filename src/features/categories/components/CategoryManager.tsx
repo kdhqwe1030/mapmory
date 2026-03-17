@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import EditRounded from "@mui/icons-material/EditRounded";
 import DeleteRounded from "@mui/icons-material/DeleteRounded";
 import CheckRounded from "@mui/icons-material/CheckRounded";
@@ -44,6 +44,34 @@ export function CategoryManager() {
   const [shakeEdit, setShakeEdit] = useState(false);
   const [deletingCategory, setDeletingCategory] = useState<{ id: number; name: string } | null>(null);
   const [deleteInput, setDeleteInput] = useState("");
+
+  const handleTouchStart = useCallback((index: number) => {
+    setDragIndex(index);
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    const item = el?.closest("[data-drag-index]") as HTMLElement | null;
+    if (item?.dataset.dragIndex !== undefined) {
+      setDragOverIndex(parseInt(item.dataset.dragIndex));
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (
+      dragIndex !== null &&
+      dragOverIndex !== null &&
+      dragIndex !== dragOverIndex
+    ) {
+      const newOrder = [...categories];
+      const [moved] = newOrder.splice(dragIndex, 1);
+      newOrder.splice(dragOverIndex, 0, moved);
+      reorderCategories.mutate(newOrder.map((c) => c.id));
+    }
+    setDragIndex(null);
+    setDragOverIndex(null);
+  }, [dragIndex, dragOverIndex, categories, reorderCategories]);
 
   const handleCreate = () => {
     if (!newForm.name.trim()) return;
@@ -248,6 +276,7 @@ export function CategoryManager() {
               ) : (
                 <div
                   key={cat.id}
+                  data-drag-index={String(index)}
                   draggable
                   onDragStart={() => setDragIndex(index)}
                   onDragOver={(e) => { e.preventDefault(); setDragOverIndex(index); }}
@@ -259,6 +288,8 @@ export function CategoryManager() {
                     newOrder.splice(index, 0, moved);
                     reorderCategories.mutate(newOrder.map((c) => c.id));
                   }}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
                   className="flex items-center gap-3 rounded-2xl bg-white border border-border px-3 py-3 transition-all"
                   style={{
                     opacity: dragIndex === index ? 0.4 : 1,
@@ -266,7 +297,10 @@ export function CategoryManager() {
                   }}
                 >
                   {/* 드래그 핸들 */}
-                  <div className="cursor-grab active:cursor-grabbing shrink-0 touch-none">
+                  <div
+                    className="cursor-grab active:cursor-grabbing shrink-0 touch-none"
+                    onTouchStart={() => handleTouchStart(index)}
+                  >
                     <DragHandleRounded sx={{ fontSize: 20, color: "#C4B4AC" }} />
                   </div>
                   <div
