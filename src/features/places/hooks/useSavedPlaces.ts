@@ -47,24 +47,58 @@ export function useSavePlace() {
       lng: number;
       naver_category: string;
       category_id: number;
+      _categoryMeta?: { name: string; icon: string; color: string };
     }) => {
+      const { _categoryMeta, ...apiBody } = body;
       // 1. upsert place
       const { data: place } = await api.post("/places", {
-        name: body.name,
-        address: body.address,
-        external_id: body.external_id,
-        lat: body.lat,
-        lng: body.lng,
-        naver_category: body.naver_category,
+        name: apiBody.name,
+        address: apiBody.address,
+        external_id: apiBody.external_id,
+        lat: apiBody.lat,
+        lng: apiBody.lng,
+        naver_category: apiBody.naver_category,
       });
       // 2. save to category
       const { data: saved } = await api.post("/saved-places", {
         place_id: place.id,
-        category_id: body.category_id,
+        category_id: apiBody.category_id,
       });
       return saved;
     },
-    onSuccess: () =>
+    onMutate: async (body) => {
+      await queryClient.cancelQueries({ queryKey: SAVED_PLACES_KEY });
+      const previous = queryClient.getQueryData<SavedPlaceRecord[]>(SAVED_PLACES_KEY);
+      const tempId = -Date.now();
+      const tempRecord: SavedPlaceRecord = {
+        id: tempId,
+        place_id: tempId - 1,
+        category_id: body.category_id,
+        visit_status: "not_visited",
+        created_at: new Date().toISOString(),
+        places: {
+          id: tempId - 1,
+          name: body.name,
+          address: body.address,
+          lat: body.lat,
+          lng: body.lng,
+          external_id: body.external_id,
+          naver_category: body.naver_category,
+        },
+        categories: body._categoryMeta
+          ? { id: body.category_id, ...body._categoryMeta }
+          : null,
+      };
+      queryClient.setQueryData(SAVED_PLACES_KEY, [
+        ...(previous ?? []),
+        tempRecord,
+      ]);
+      return { previous };
+    },
+    onError: (_, __, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(SAVED_PLACES_KEY, ctx.previous);
+    },
+    onSettled: () =>
       queryClient.invalidateQueries({ queryKey: SAVED_PLACES_KEY }),
   });
 }
@@ -73,7 +107,19 @@ export function useRemoveSavedPlace() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => api.delete(`/saved-places/${id}`),
-    onSuccess: () =>
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: SAVED_PLACES_KEY });
+      const previous = queryClient.getQueryData<SavedPlaceRecord[]>(SAVED_PLACES_KEY);
+      queryClient.setQueryData(
+        SAVED_PLACES_KEY,
+        (previous ?? []).filter((sp) => sp.id !== id),
+      );
+      return { previous };
+    },
+    onError: (_, __, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(SAVED_PLACES_KEY, ctx.previous);
+    },
+    onSettled: () =>
       queryClient.invalidateQueries({ queryKey: SAVED_PLACES_KEY }),
   });
 }
