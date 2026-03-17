@@ -12,7 +12,7 @@ import {
   SelectedPlace,
 } from "@/src/features/places/components/PlaceDetail";
 import { BottomSheet } from "@/src/components/ui/BottomSheet";
-import { CategoryFilterDropdown } from "@/src/components/ui/CategoryFilterDropdown";
+import { getCategoryTextColor } from "@/src/features/categories/categoryColors";
 import MyLocationRounded from "@mui/icons-material/MyLocationRounded";
 import ArrowBackRounded from "@mui/icons-material/ArrowBackRounded";
 import { FloatingNavButton } from "@/src/components/ui/FloatingNavButton";
@@ -42,9 +42,8 @@ function haversineDistance(
 
 export default function Home() {
   const { data: savedPlaces = [] } = useSavedPlaces();
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
-    null,
-  );
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
+  const [visitFilter, setVisitFilter] = useState<"all" | "visited" | "not_visited">("all");
   const [currentPosition, setCurrentPosition] = useState<LatLng | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<SelectedPlace | null>(
     null,
@@ -67,6 +66,12 @@ export default function Home() {
       },
       () => {},
       { enableHighAccuracy: true },
+    );
+  }, []);
+
+  const toggleCategory = useCallback((id: number) => {
+    setSelectedCategoryIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   }, []);
 
@@ -175,24 +180,41 @@ export default function Home() {
       .sort((a, b) => a._dist - b._dist);
   }, [savedPlaces, currentPosition]);
 
-  const nearbyCategories = useMemo(() => {
+  const allCategories = useMemo(() => {
     const seen = new Set<number>();
-    const cats: { id: number; name: string; icon: string }[] = [];
-    nearbySavedPlaces.forEach((sp) => {
+    const cats: { id: number; name: string; icon: string; color: string }[] = [];
+    savedPlaces.forEach((sp) => {
       if (sp.categories && !seen.has(sp.categories.id)) {
         seen.add(sp.categories.id);
         cats.push(sp.categories);
       }
     });
     return cats;
-  }, [nearbySavedPlaces]);
+  }, [savedPlaces]);
 
   const filteredPlaces = useMemo(() => {
-    if (selectedCategoryId === null) return nearbySavedPlaces;
-    return nearbySavedPlaces.filter(
-      (sp) => sp.category_id === selectedCategoryId,
-    );
-  }, [nearbySavedPlaces, selectedCategoryId]);
+    let base = nearbySavedPlaces;
+    if (selectedCategoryIds.length > 0) {
+      base = base.filter(
+        (sp) => sp.category_id !== null && selectedCategoryIds.includes(sp.category_id),
+      );
+    }
+    if (visitFilter === "visited") return base.filter((sp) => sp.visit_status === "visited");
+    if (visitFilter === "not_visited") return base.filter((sp) => sp.visit_status !== "visited");
+    return base;
+  }, [nearbySavedPlaces, selectedCategoryIds, visitFilter]);
+
+  const filteredMapPlaces = useMemo(() => {
+    let base = savedPlaces;
+    if (selectedCategoryIds.length > 0) {
+      base = base.filter(
+        (sp) => sp.category_id !== null && selectedCategoryIds.includes(sp.category_id),
+      );
+    }
+    if (visitFilter === "visited") return base.filter((sp) => sp.visit_status === "visited");
+    if (visitFilter === "not_visited") return base.filter((sp) => sp.visit_status !== "visited");
+    return base;
+  }, [savedPlaces, selectedCategoryIds, visitFilter]);
 
   const sheetContent = selectedPlace ? (
     <PlaceDetail place={selectedPlace} />
@@ -200,14 +222,31 @@ export default function Home() {
     <div className="px-4 pt-2 pb-8">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-base font-semibold text-text-primary">근처 스팟</h2>
-        {/* 카테고리 필터 - 카테고리가 있을 때만 표시 */}
-        {nearbyCategories.length > 0 && (
-          <CategoryFilterDropdown
-            categories={nearbyCategories}
-            value={selectedCategoryId}
-            onChange={setSelectedCategoryId}
-          />
-        )}
+        <div className="flex gap-1">
+          {(
+            [
+              { key: "visited", label: "방문완료", color: "#4CAF82", bg: "#E8F8F0" },
+              { key: "not_visited", label: "방문예정", color: "#F56F86", bg: "#FFDCDC" },
+            ] as const
+          ).map(({ key, label, color, bg }) => (
+            <button
+              key={key}
+              onClick={() => setVisitFilter((prev) => (prev === key ? "all" : key))}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all"
+              style={
+                visitFilter === key
+                  ? { background: bg, color }
+                  : { background: "#F5F0EE", color: "#9B8B84" }
+              }
+            >
+              <span
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ background: visitFilter === key ? color : "#C4B4AC" }}
+              />
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
       <div className="flex flex-col gap-2">
         {filteredPlaces.length === 0 ? (
@@ -269,7 +308,7 @@ export default function Home() {
           currentPosition={currentPosition}
           selectedPlaceCoord={selectedPlaceCoord}
           recenterCounter={recenterCounter}
-          savedPlaces={savedPlaces}
+          savedPlaces={filteredMapPlaces}
           showRedMarker={showRedMarker}
           selectedSavedPlaceId={selectedSavedPlaceId}
           onSavedPlaceMarkerClick={handleMapMarkerClick}
@@ -281,6 +320,42 @@ export default function Home() {
           currentPosition={currentPosition}
           onClear={handleBack}
         />
+
+        {/* 카테고리 태그 필터 */}
+        {allCategories.length > 0 && (
+          <div
+            className="absolute left-0 right-0 z-10 flex gap-2 px-4 overflow-x-auto scrollbar-hide py-2"
+            style={{ top: "64px" }}
+          >
+            {allCategories.map((cat) => {
+              const isSelected = selectedCategoryIds.includes(cat.id);
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => toggleCategory(cat.id)}
+                  className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all"
+                  style={
+                    isSelected
+                      ? {
+                          background: cat.color,
+                          color: getCategoryTextColor(cat.color),
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                        }
+                      : {
+                          background: "rgba(255,255,255,0.92)",
+                          backdropFilter: "blur(8px)",
+                          color: "#6B5B56",
+                          boxShadow: "0 2px 8px rgba(58,46,42,0.10)",
+                        }
+                  }
+                >
+                  <span>{cat.icon === "default" ? "📁" : cat.icon}</span>
+                  <span>{cat.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {/* 현재 위치 재검색 버튼 (검색바 아래 우측) */}
         <button
