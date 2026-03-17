@@ -24,10 +24,33 @@ export async function DELETE(
 ) {
   const { id } = await params
   const supabase = await createClient()
+
+  // 삭제 전 place_id 조회
+  const { data: visit } = await supabase
+    .from('visits')
+    .select('place_id')
+    .eq('id', Number(id))
+    .single()
+
   const { error } = await supabase
     .from('visits')
     .delete()
     .eq('id', Number(id))
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // 남은 방문 기록 없으면 visit_status → not_visited
+  if (visit?.place_id) {
+    const { count } = await supabase
+      .from('visits')
+      .select('*', { count: 'exact', head: true })
+      .eq('place_id', visit.place_id)
+    if (count === 0) {
+      await supabase
+        .from('saved_places')
+        .update({ visit_status: 'not_visited' })
+        .eq('place_id', visit.place_id)
+    }
+  }
+
   return new NextResponse(null, { status: 204 })
 }

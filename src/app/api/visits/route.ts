@@ -34,5 +34,12 @@ export async function POST(request: Request) {
     .single();
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // 방문 기록이 생기면 saved_places.visit_status → visited
+  await supabase
+    .from("saved_places")
+    .update({ visit_status: "visited" })
+    .eq("place_id", place_id);
+
   return NextResponse.json(data, { status: 201 });
 }
