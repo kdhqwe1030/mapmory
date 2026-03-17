@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/src/api/api";
+import { SAVED_PLACES_KEY } from "@/src/features/places/hooks/useSavedPlaces";
 
 export interface VisitRecord {
   id: number;
@@ -31,8 +32,10 @@ export function useAddVisit() {
       const { data } = await api.post<VisitRecord>("/visits", body);
       return data;
     },
-    onSuccess: (data) =>
-      queryClient.invalidateQueries({ queryKey: visitsKey(data.place_id) }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: visitsKey(data.place_id) });
+      queryClient.invalidateQueries({ queryKey: SAVED_PLACES_KEY });
+    },
   });
 }
 
@@ -65,7 +68,9 @@ export function useDeleteVisit() {
       await api.delete(`/visits/${id}`);
       return place_id;
     },
-    onSuccess: (place_id) =>
-      queryClient.invalidateQueries({ queryKey: visitsKey(place_id) }),
+    onSuccess: (place_id) => {
+      queryClient.invalidateQueries({ queryKey: visitsKey(place_id) });
+      queryClient.invalidateQueries({ queryKey: SAVED_PLACES_KEY });
+    },
   });
 }
