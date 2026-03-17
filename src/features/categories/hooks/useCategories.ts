@@ -7,6 +7,7 @@ export interface Category {
   icon: string;
   color: string;
   created_at: string;
+  sort_order: number;
 }
 
 export const CATEGORIES_KEY = ["categories"] as const;
@@ -50,6 +51,14 @@ export function useDeleteCategory() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => api.delete(`/categories/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY }),
+  });
+}
+
+export function useReorderCategories() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (ids: number[]) => api.patch("/categories", { ids }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY }),
   });
 }

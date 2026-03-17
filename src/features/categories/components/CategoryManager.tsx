@@ -6,11 +6,13 @@ import DeleteRounded from "@mui/icons-material/DeleteRounded";
 import CheckRounded from "@mui/icons-material/CheckRounded";
 import CloseRounded from "@mui/icons-material/CloseRounded";
 import AddRounded from "@mui/icons-material/AddRounded";
+import DragHandleRounded from "@mui/icons-material/DragHandleRounded";
 import {
   useCategories,
   useCreateCategory,
   useUpdateCategory,
   useDeleteCategory,
+  useReorderCategories,
   type Category,
 } from "@/src/features/categories/hooks/useCategories";
 import { PRESET_COLORS } from "@/src/features/categories/categoryColors";
@@ -25,6 +27,10 @@ export function CategoryManager() {
   const createCategory = useCreateCategory();
   const updateCategory = useUpdateCategory();
   const deleteCategory = useDeleteCategory();
+  const reorderCategories = useReorderCategories();
+
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState({ icon: "", name: "", color: "" });
@@ -179,7 +185,7 @@ export function CategoryManager() {
               카테고리가 없어요
             </p>
           ) : (
-            categories.map((cat) =>
+            categories.map((cat, index) =>
               editingId === cat.id ? (
                 <div
                   key={cat.id}
@@ -242,8 +248,27 @@ export function CategoryManager() {
               ) : (
                 <div
                   key={cat.id}
-                  className="flex items-center gap-3 rounded-2xl bg-white border border-border px-4 py-3"
+                  draggable
+                  onDragStart={() => setDragIndex(index)}
+                  onDragOver={(e) => { e.preventDefault(); setDragOverIndex(index); }}
+                  onDragEnd={() => { setDragIndex(null); setDragOverIndex(null); }}
+                  onDrop={() => {
+                    if (dragIndex === null || dragIndex === index) return;
+                    const newOrder = [...categories];
+                    const [moved] = newOrder.splice(dragIndex, 1);
+                    newOrder.splice(index, 0, moved);
+                    reorderCategories.mutate(newOrder.map((c) => c.id));
+                  }}
+                  className="flex items-center gap-3 rounded-2xl bg-white border border-border px-3 py-3 transition-all"
+                  style={{
+                    opacity: dragIndex === index ? 0.4 : 1,
+                    borderColor: dragOverIndex === index && dragIndex !== index ? "#FFDCDC" : undefined,
+                  }}
                 >
+                  {/* 드래그 핸들 */}
+                  <div className="cursor-grab active:cursor-grabbing shrink-0 touch-none">
+                    <DragHandleRounded sx={{ fontSize: 20, color: "#C4B4AC" }} />
+                  </div>
                   <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
                     style={{ background: cat.color ?? "#FFF2EB" }}
