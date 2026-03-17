@@ -199,7 +199,7 @@ export default function Home() {
   ) : (
     <div className="px-4 pt-2 pb-8">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-base font-semibold text-[#3A2E2A]">근처 스팟</h2>
+        <h2 className="text-base font-semibold text-text-primary">근처 스팟</h2>
         {/* 카테고리 필터 - 카테고리가 있을 때만 표시 */}
         {nearbyCategories.length > 0 && (
           <CategoryFilterDropdown
@@ -211,7 +211,7 @@ export default function Home() {
       </div>
       <div className="flex flex-col gap-2">
         {filteredPlaces.length === 0 ? (
-          <p className="text-sm text-[#9B8B84] text-center py-8">
+          <p className="text-sm text-text-muted text-center py-8">
             {currentPosition
               ? "5km 내 저장된 장소가 없어요"
               : "저장된 장소가 없어요"}
@@ -234,6 +234,7 @@ export default function Home() {
                     : (sp.categories?.icon ?? "📍")
                 }
                 naverCategory={sp.places.naver_category ?? undefined}
+                categoryColor={sp.categories?.color ?? "#FFDCDC"}
               />
             </button>
           ))
@@ -245,12 +246,12 @@ export default function Home() {
   return (
     <main className="flex h-screen w-screen overflow-hidden">
       {/* Desktop sidebar - hidden on mobile */}
-      <aside className="hidden md:flex md:flex-col w-80 flex-shrink-0 h-full bg-white shadow-[2px_0_24px_rgba(58,46,42,0.08)] z-[400] overflow-hidden">
+      <aside className="hidden md:flex md:flex-col w-80 shrink-0 h-full bg-white shadow-[2px_0_24px_rgba(58,46,42,0.08)] z-400 overflow-hidden">
         {selectedPlace && (
-          <div className="flex items-center px-4 pt-4 pb-3 flex-shrink-0 border-b border-[#EAD9D0]">
+          <div className="flex items-center px-4 pt-4 pb-3 shrink-0 border-b border-border">
             <button
               onClick={handleBack}
-              className="text-sm text-[#6B5B56] hover:text-[#3A2E2A] flex items-center gap-1"
+              className="text-sm text-text-secondary hover:text-text-primary flex items-center gap-1"
             >
               <ArrowBackRounded sx={{ fontSize: 18 }} />
               <span>뒤로</span>

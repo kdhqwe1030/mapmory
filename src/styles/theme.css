@@ -7,6 +7,18 @@
   --color-brand-peach: #FFE8CD;
   --color-brand-salmon: #FFD6BA;
 
+  /* Category Preset Colors (bg + 진한 text) */
+  --color-cat-1-bg: #FFDCDC;
+  --color-cat-1-text: #A63030;
+  --color-cat-2-bg: #FFF9B0;
+  --color-cat-2-text: #7A6600;
+  --color-cat-3-bg: #B8F0C8;
+  --color-cat-3-text: #1A6B35;
+  --color-cat-4-bg: #B8DCFF;
+  --color-cat-4-text: #1A4A8B;
+  --color-cat-5-bg: #E8C8FF;
+  --color-cat-5-text: #5A1A8B;
+
   /* Text */
   --color-text-primary: #3A2E2A;
   --color-text-secondary: #6B5B56;

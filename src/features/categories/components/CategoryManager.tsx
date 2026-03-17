@@ -13,8 +13,7 @@ import {
   useDeleteCategory,
   type Category,
 } from "@/src/features/categories/hooks/useCategories";
-
-const PRESET_COLORS = ["#FFDCDC", "#FFF9B0", "#B8F0C8", "#B8DCFF", "#E8C8FF"];
+import { PRESET_COLORS } from "@/src/features/categories/categoryColors";
 
 const extractEmoji = (value: string): string => {
   const match = value.match(/\p{Extended_Pictographic}/u);
@@ -48,7 +47,7 @@ export function CategoryManager() {
           setNewForm({ icon: "", name: "", color: PRESET_COLORS[0] });
           setIsAdding(false);
         },
-      }
+      },
     );
   };
 
@@ -67,7 +66,7 @@ export function CategoryManager() {
       { id, ...editForm, icon },
       {
         onSuccess: () => setEditingId(null),
-      }
+      },
     );
   };
 
@@ -116,12 +115,12 @@ export function CategoryManager() {
       `}</style>
       <div className="px-4 pt-4 pb-8">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-lg font-semibold text-[#3A2E2A]">
+          <h1 className="text-lg font-semibold text-text-primary">
             장소 카테고리
           </h1>
           <button
             onClick={() => setIsAdding(true)}
-            className="w-8 h-8 rounded-full bg-[#FFDCDC] flex items-center justify-center hover:bg-[#FFD6BA] transition-colors"
+            className="w-8 h-8 rounded-full bg-[#FFDCDC] flex items-center justify-center hover:bg-brand-salmon transition-colors"
           >
             <AddRounded sx={{ fontSize: 18, color: "#3A2E2A" }} />
           </button>
@@ -130,11 +129,11 @@ export function CategoryManager() {
         {/* 카테고리 목록 */}
         <div className="flex flex-col gap-2">
           {isLoading ? (
-            <p className="text-[#9B8B84] text-sm text-center py-8">
+            <p className="text-text-muted text-sm text-center py-8">
               불러오는 중...
             </p>
           ) : categories.length === 0 ? (
-            <p className="text-[#9B8B84] text-sm text-center py-8">
+            <p className="text-text-muted text-sm text-center py-8">
               카테고리가 없어요
             </p>
           ) : (
@@ -142,7 +141,7 @@ export function CategoryManager() {
               editingId === cat.id ? (
                 <div
                   key={cat.id}
-                  className="rounded-2xl bg-white border border-[#EAD9D0] p-3"
+                  className="rounded-2xl bg-white border border-border p-3"
                 >
                   <div className="flex gap-2 mb-2">
                     <div className="flex flex-col items-center gap-1">
@@ -151,12 +150,14 @@ export function CategoryManager() {
                         onChange={(e) => handleEditIconChange(e.target.value)}
                         placeholder="🏠"
                         maxLength={8}
-                        className="w-12 h-12 rounded-xl bg-[#FFF2EB] border-2 border-dashed border-[#FFD6BA] text-center text-2xl focus:outline-none focus:border-[#FFDCDC] placeholder-[#D4C4BC]"
+                        className="w-12 h-12 rounded-xl bg-brand-cream border-2 border-dashed border-brand-salmon text-center text-2xl focus:outline-none focus:border-[#FFDCDC] placeholder-[#D4C4BC]"
                         style={{
                           animation: shakeEdit ? "shake 0.4s ease" : undefined,
                         }}
                       />
-                      <span className="text-[10px] text-[#9B8B84]">아이콘</span>
+                      <span className="text-[10px] text-text-muted">
+                        아이콘
+                      </span>
                     </div>
                     <input
                       value={editForm.name}
@@ -164,7 +165,7 @@ export function CategoryManager() {
                         setEditForm({ ...editForm, name: e.target.value })
                       }
                       placeholder="카테고리 이름"
-                      className="flex-1 h-12 rounded-xl border border-[#EAD9D0] px-3 text-sm text-[#3A2E2A] focus:outline-none focus:border-[#FFD6BA]"
+                      className="flex-1 h-12 rounded-xl border border-border px-3 text-sm text-text-primary focus:outline-none focus:border-brand-salmon"
                     />
                   </div>
                   <div className="flex gap-2 mb-3">
@@ -190,7 +191,7 @@ export function CategoryManager() {
                     </button>
                     <button
                       onClick={() => handleUpdate(cat.id)}
-                      className="w-8 h-8 rounded-full bg-[#FFDCDC] flex items-center justify-center hover:bg-[#FFD6BA]"
+                      className="w-8 h-8 rounded-full bg-[#FFDCDC] flex items-center justify-center hover:bg-brand-salmon"
                     >
                       <CheckRounded sx={{ fontSize: 16, color: "#3A2E2A" }} />
                     </button>
@@ -199,15 +200,15 @@ export function CategoryManager() {
               ) : (
                 <div
                   key={cat.id}
-                  className="flex items-center gap-3 rounded-2xl bg-white border border-[#EAD9D0] px-4 py-3"
+                  className="flex items-center gap-3 rounded-2xl bg-white border border-border px-4 py-3"
                 >
                   <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
                     style={{ background: cat.color ?? "#FFF2EB" }}
                   >
                     {cat.icon === "default" ? "📁" : cat.icon}
                   </div>
-                  <span className="flex-1 text-sm font-medium text-[#3A2E2A]">
+                  <span className="flex-1 text-sm font-medium text-text-primary">
                     {cat.name}
                   </span>
                   <button
@@ -239,12 +240,12 @@ export function CategoryManager() {
                   onChange={(e) => handleNewIconChange(e.target.value)}
                   placeholder="🏠"
                   maxLength={8}
-                  className="w-12 h-12 rounded-xl bg-[#FFF2EB] border-2 border-dashed border-[#FFD6BA] text-center text-2xl focus:outline-none focus:border-[#FFDCDC] placeholder-[#D4C4BC]"
+                  className="w-12 h-12 rounded-xl bg-brand-cream border-2 border-dashed border-brand-salmon text-center text-2xl focus:outline-none focus:border-[#FFDCDC] placeholder-[#D4C4BC]"
                   style={{
                     animation: shakeNew ? "shake 0.4s ease" : undefined,
                   }}
                 />
-                <span className="text-[10px] text-[#9B8B84]">아이콘</span>
+                <span className="text-[10px] text-text-muted">아이콘</span>
               </div>
               <input
                 value={newForm.name}
@@ -252,7 +253,7 @@ export function CategoryManager() {
                   setNewForm({ ...newForm, name: e.target.value })
                 }
                 placeholder="카테고리 이름"
-                className="flex-1 h-12 rounded-xl border border-[#EAD9D0] px-3 text-sm text-[#3A2E2A] focus:outline-none focus:border-[#FFD6BA]"
+                className="flex-1 h-12 rounded-xl border  border-border px-3 text-sm text-text-primary focus:outline-none focus:border-brand-salmon"
                 onKeyDown={(e) => e.key === "Enter" && handleCreate()}
               />
             </div>
@@ -279,7 +280,7 @@ export function CategoryManager() {
               </button>
               <button
                 onClick={handleCreate}
-                className="w-8 h-8 rounded-full bg-[#FFDCDC] flex items-center justify-center hover:bg-[#FFD6BA]"
+                className="w-8 h-8 rounded-full bg-[#FFDCDC] flex items-center justify-center hover:bg-brand-salmon"
               >
                 <CheckRounded sx={{ fontSize: 16, color: "#3A2E2A" }} />
               </button>
