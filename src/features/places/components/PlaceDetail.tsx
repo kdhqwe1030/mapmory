@@ -110,11 +110,11 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
     <div className="px-4 pt-3 pb-8">
       {/* 헤더 */}
       <div className="mb-4">
-        <h2 className="text-lg font-bold text-[#3A2E2A] leading-tight">
+        <h2 className="text-lg font-bold text-text-primary leading-tight">
           {place.title}
         </h2>
         {place.category && (
-          <p className="text-xs text-[#9B8B84] mt-1">{place.category}</p>
+          <p className="text-xs text-text-muted mt-1">{place.category}</p>
         )}
       </div>
 
@@ -124,7 +124,7 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="w-[120px] h-[120px] rounded-xl bg-[#F5EDE8] animate-pulse flex-shrink-0"
+              className="w-30 h-30 rounded-xl bg-[#F5EDE8] animate-pulse shrink-0"
             />
           ))}
         </div>
@@ -138,13 +138,13 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
                 key={src}
                 src={src}
                 alt=""
-                className="w-[120px] h-[120px] rounded-xl object-cover flex-shrink-0"
+                className="w-30 h-30 rounded-xl object-cover shrink-0"
                 onError={() => setFailedUrls((prev) => new Set([...prev, src]))}
               />
             ))}
         </div>
       ) : (
-        <div className="w-full h-32 rounded-2xl bg-gradient-to-br from-[#FFF2EB] to-[#FFDCDC] flex items-center justify-center mb-4">
+        <div className="w-full h-32 rounded-2xl bg-linear-to-br from-brand-cream to-[#FFDCDC] flex items-center justify-center mb-4">
           <span className="text-4xl">🗺️</span>
         </div>
       )}
@@ -156,7 +156,7 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
             <LocationOnRounded
               sx={{ fontSize: 16, color: "#9B8B84", flexShrink: 0, mt: "1px" }}
             />
-            <p className="text-sm text-[#6B5B56] leading-snug">
+            <p className="text-sm text-text-secondary leading-snug">
               {place.roadAddress || place.address}
             </p>
           </div>
@@ -166,7 +166,7 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
             <PhoneRounded
               sx={{ fontSize: 16, color: "#9B8B84", flexShrink: 0 }}
             />
-            <p className="text-sm text-[#6B5B56]">{place.telephone}</p>
+            <p className="text-sm text-text-secondary">{place.telephone}</p>
           </div>
         )}
         {place.link && (
@@ -178,14 +178,14 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
               href={place.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-[#6B5B56] hover:text-[#3A2E2A] underline underline-offset-2 transition-colors truncate"
+              className="text-sm text-text-secondary hover:text-text-primary underline underline-offset-2 transition-colors truncate"
             >
               {place.link}
             </a>
           </div>
         )}
         {place.description && (
-          <p className="text-sm text-[#9B8B84] leading-relaxed mt-1">
+          <p className="text-sm text-text-muted leading-relaxed mt-1">
             {place.description}
           </p>
         )}
@@ -195,7 +195,7 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
       <div className="mt-8 pt-4">
         <p className="text-xs font-semibold text-mauve-800 mb-2">카테고리</p>
         {categoriesLoading ? (
-          <p className="text-xs text-[#9B8B84]">불러오는 중...</p>
+          <p className="text-xs text-text-muted">불러오는 중...</p>
         ) : (
           <div className="flex flex-wrap gap-2">
             {(categories ?? []).map((cat) => {
@@ -248,7 +248,7 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
       </div>
       {placeId !== null && (
         <div className="mt-8 pt-4">
-          <p className="text-xs font-semibold tracking-[0.08em] text-[#9B8B84] mb-3">
+          <p className="text-xs font-semibold tracking-[0.08em] text-text-muted mb-3">
             방문 기록
           </p>
 
@@ -268,11 +268,11 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
 
           {/* 방문 기록 리스트 섹션 */}
           {(visits ?? []).length > 0 ? (
-            <div className="rounded-2xl border border-[#EAD9D0] overflow-hidden">
+            <div className="rounded-2xl border border-border overflow-hidden">
               {/* 오늘 방문 — 최상단, 강조 스타일 */}
               {todayVisit && (
                 <div
-                  className={`px-4 py-3 flex items-center justify-between bg-[#FFF2EB] border-[#FFDCDC]${pastVisits.length > 0 ? " border-b" : ""}`}
+                  className={`px-4 py-3 flex items-center justify-between bg-brand-cream border-[#FFDCDC]${pastVisits.length > 0 ? " border-b" : ""}`}
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FFDCDC]">
@@ -284,7 +284,7 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
                       <p className="text-[13px] font-bold text-[#F56F86]">
                         오늘
                       </p>
-                      <p className="text-xs text-[#9B8B84]">
+                      <p className="text-xs text-text-muted">
                         {formatDate(todayVisit.visited_at)}
                       </p>
                     </div>
@@ -343,7 +343,7 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
                         setEditingDate(visit.visited_at);
                         setIsCalendarOpen(true);
                       }}
-                      className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#FFF2EB] transition-colors"
+                      className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-brand-cream transition-colors"
                     >
                       <EditRounded sx={{ fontSize: 16, color: "#A89A93" }} />
                     </button>
@@ -355,7 +355,7 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
                           place_id: placeId,
                         })
                       }
-                      className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#FFF2EB] transition-colors"
+                      className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-brand-cream transition-colors"
                     >
                       <DeleteOutlineRounded
                         sx={{ fontSize: 16, color: "#C97B7B" }}
@@ -366,7 +366,7 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-[#9B8B84] text-center py-4">
+            <p className="text-sm text-text-muted text-center py-4">
               아직 방문 기록이 없어요
             </p>
           )}

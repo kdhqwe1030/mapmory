@@ -100,21 +100,23 @@ export function CalendarBottomSheet({
     <>
       {/* 오버레이 */}
       <div
-        className={`fixed inset-0 z-[490] bg-black/40 transition-opacity duration-300 ${
-          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        className={`fixed inset-0 z-490 bg-black/40 transition-opacity duration-300 ${
+          isOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}
       />
 
       {/* 바텀시트 */}
       <div
-        className={`fixed bottom-0 left-0 right-0 z-[500] bg-white rounded-t-3xl shadow-[0_-4px_24px_rgba(58,46,42,0.12)] transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+        className={`fixed bottom-0 left-0 right-0 z-500 bg-white rounded-t-3xl shadow-[0_-4px_24px_rgba(58,46,42,0.12)] transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-y-0" : "translate-y-full"
         }`}
       >
         {/* 드래그 핸들 */}
         <div className="flex justify-center pt-3 pb-1">
-          <div className="w-10 h-1 rounded-full bg-[#EAD9D0]" />
+          <div className="w-10 h-1 rounded-full bg-border" />
         </div>
 
         <div className="px-5 pb-6">
@@ -122,7 +124,7 @@ export function CalendarBottomSheet({
           <div className="flex items-center justify-between py-3">
             <button
               onClick={goToPrevMonth}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#FFF2EB] text-[#6B5B56] transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-brand-cream text-text-secondary transition-colors"
               aria-label="이전 달"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -136,13 +138,13 @@ export function CalendarBottomSheet({
               </svg>
             </button>
 
-            <span className="text-base font-semibold text-[#3A2E2A]">
+            <span className="text-base font-semibold text-text-primary">
               {viewYear}년 {viewMonth + 1}월
             </span>
 
             <button
               onClick={goToNextMonth}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#FFF2EB] text-[#6B5B56] transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-brand-cream text-text-secondary transition-colors"
               aria-label="다음 달"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -166,8 +168,8 @@ export function CalendarBottomSheet({
                   i === 0
                     ? "text-red-400"
                     : i === 6
-                    ? "text-blue-400"
-                    : "text-[#9B8B84]"
+                      ? "text-blue-400"
+                      : "text-text-muted"
                 }`}
               >
                 {day}
@@ -186,7 +188,7 @@ export function CalendarBottomSheet({
               const isToday = isSameDay(date, today);
               const dayOfWeek = date.getDay();
 
-              let textColor = "text-[#3A2E2A]";
+              let textColor = "text-text-primary";
               if (dayOfWeek === 0) textColor = "text-red-400";
               else if (dayOfWeek === 6) textColor = "text-blue-400";
 
@@ -196,8 +198,8 @@ export function CalendarBottomSheet({
                   onClick={() => setSelectedDate(date)}
                   className={`relative flex flex-col items-center justify-center h-9 rounded-full text-sm font-medium transition-colors ${
                     isSelected
-                      ? "bg-[#FFDCDC] text-[#3A2E2A] font-semibold"
-                      : `${textColor} hover:bg-[#FFF2EB]`
+                      ? "bg-[#FFDCDC] text-text-primary font-semibold"
+                      : `${textColor} hover:bg-brand-cream`
                   }`}
                 >
                   {date.getDate()}
@@ -210,7 +212,7 @@ export function CalendarBottomSheet({
           </div>
 
           {/* 선택된 날짜 표시 */}
-          <p className="text-center text-xs text-[#9B8B84] mt-3">
+          <p className="text-center text-xs text-text-muted mt-3">
             {selectedDate.getFullYear()}년 {selectedDate.getMonth() + 1}월{" "}
             {selectedDate.getDate()}일
           </p>
@@ -219,13 +221,13 @@ export function CalendarBottomSheet({
           <div className="flex gap-3 mt-4">
             <button
               onClick={onClose}
-              className="flex-1 h-11 rounded-xl border border-[#EAD9D0] text-sm font-medium text-[#6B5B56] hover:bg-[#FFF2EB] transition-colors"
+              className="flex-1 h-11 rounded-xl border  text-sm font-medium text-text-secondary hover:bg-brand-cream transition-colors"
             >
               취소
             </button>
             <button
               onClick={handleConfirm}
-              className="flex-1 h-11 rounded-xl bg-[#3A2E2A] text-sm font-medium text-white hover:bg-[#2a201c] transition-colors"
+              className="flex-1 h-11 rounded-xl bg-text-primary text-sm font-medium text-white hover:bg-[#2a201c] transition-colors"
             >
               완료
             </button>

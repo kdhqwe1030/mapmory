@@ -6,7 +6,13 @@ import ArrowBackRounded from "@mui/icons-material/ArrowBackRounded";
 const PEEK_HEIGHT = 280;
 const FULL_THRESHOLD = 0.8;
 
-export function BottomSheet({ children, onBack }: { children: React.ReactNode; onBack?: () => void }) {
+export function BottomSheet({
+  children,
+  onBack,
+}: {
+  children: React.ReactNode;
+  onBack?: () => void;
+}) {
   const [height, setHeight] = useState(PEEK_HEIGHT);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -96,15 +102,15 @@ export function BottomSheet({ children, onBack }: { children: React.ReactNode; o
           ? "none"
           : "height 0.3s cubic-bezier(0.4,0,0.2,1)",
       }}
-      className={`absolute bottom-0 left-0 right-0 bg-white shadow-[0_-4px_24px_rgba(58,46,42,0.08)] z-[400] flex flex-col overflow-hidden ${
+      className={`absolute bottom-0 left-0 right-0 bg-white shadow-[0_-4px_24px_rgba(58,46,42,0.08)] z-400 flex flex-col overflow-hidden ${
         isFullScreen ? "" : "rounded-t-3xl"
       }`}
     >
       {isFullScreen ? (
-        <div className="flex items-center px-4 pt-4 pb-3 flex-shrink-0">
+        <div className="flex items-center px-4 pt-4 pb-3 shrink-0">
           <button
             onClick={() => history.back()}
-            className="text-sm text-[#6B5B56] hover:text-[#3A2E2A] flex items-center gap-1"
+            className="text-sm text-text-secondary hover:text-text-primary flex items-center gap-1"
           >
             <ArrowBackRounded sx={{ fontSize: 20 }} />
             <span>뒤로</span>
@@ -112,7 +118,7 @@ export function BottomSheet({ children, onBack }: { children: React.ReactNode; o
         </div>
       ) : (
         <div
-          className="flex items-center pt-3 pb-1 flex-shrink-0 touch-none select-none"
+          className="flex items-center pt-3 pb-1 shrink-0 touch-none select-none"
           onTouchStart={(e) => onDragStart(e.touches[0].clientY)}
           onTouchMove={(e) => onDragMove(e.touches[0].clientY)}
           onTouchEnd={onDragEnd}
@@ -123,19 +129,19 @@ export function BottomSheet({ children, onBack }: { children: React.ReactNode; o
               <button
                 onClick={onBack}
                 onMouseDown={(e) => e.stopPropagation()}
-                className="text-sm text-[#6B5B56] hover:text-[#3A2E2A] flex items-center gap-1 flex-shrink-0"
+                className="text-sm text-text-secondary hover:text-text-primary flex items-center gap-1 shrink-0"
               >
                 <ArrowBackRounded sx={{ fontSize: 18 }} />
                 <span>뒤로</span>
               </button>
               <div className="flex-1 flex justify-center cursor-grab active:cursor-grabbing">
-                <div className="w-10 h-1 rounded-full bg-[#EAD9D0]" />
+                <div className="w-10 h-1 rounded-full bg-border" />
               </div>
               <div className="w-12" />
             </div>
           ) : (
             <div className="flex-1 flex justify-center cursor-grab active:cursor-grabbing">
-              <div className="w-10 h-1 rounded-full bg-[#EAD9D0]" />
+              <div className="w-10 h-1 rounded-full bg-border" />
             </div>
           )}
         </div>
