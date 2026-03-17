@@ -13,6 +13,12 @@ interface PlaceCardProps {
   emoji?: string;
   naverCategory?: string;
   categoryColor?: string;
+  distance?: number; // meters
+}
+
+function formatDistance(meters: number): string {
+  if (meters < 1000) return `${Math.round(meters)}m`;
+  return `${(meters / 1000).toFixed(1)}km`;
 }
 
 const statusDot: Record<Status, string> = {
@@ -28,6 +34,7 @@ export function PlaceCard({
   emoji = "🗺️",
   naverCategory,
   categoryColor,
+  distance,
 }: PlaceCardProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
@@ -51,7 +58,7 @@ export function PlaceCard({
   }, [name, category]);
 
   return (
-    <div className="flex items-center gap-3 p-3 rounded-2xl bg-white shadow-sm">
+    <div className="relative flex items-center gap-3 p-3 rounded-2xl bg-white shadow-sm">
       {/* Thumbnail */}
       <div className="w-14 h-14 rounded-xl bg-brand-cream shrink-0 flex items-center justify-center text-2xl overflow-hidden">
         {imageUrl ? (
@@ -67,8 +74,15 @@ export function PlaceCard({
         )}
       </div>
 
+      {/* 거리 */}
+      {distance !== undefined && distance !== Infinity && (
+        <span className="absolute top-4 right-3 text-[10px] font-medium text-text-muted">
+          {formatDistance(distance)}
+        </span>
+      )}
+
       {/* Text */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 pr-8">
         <p className="font-semibold text-text-primary text-sm truncate flex items-center gap-1.5">
           {name}
           <span

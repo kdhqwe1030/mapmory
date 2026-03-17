@@ -220,6 +220,7 @@ export function PlaceDetail({ place }: PlaceDetailProps) {
                         lng,
                         naver_category: place.category,
                         category_id: cat.id,
+                        _categoryMeta: { name: cat.name, icon: cat.icon, color: cat.color },
                       });
                     }
                   }}

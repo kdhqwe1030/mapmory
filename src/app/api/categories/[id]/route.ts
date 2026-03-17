@@ -19,6 +19,14 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient()
   const { id } = await params
+
+  // 해당 카테고리의 saved_places 먼저 삭제
+  const { error: spError } = await supabase
+    .from('saved_places')
+    .delete()
+    .eq('category_id', Number(id))
+  if (spError) return NextResponse.json({ error: spError.message }, { status: 500 })
+
   const { error } = await supabase.from('categories').delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return new NextResponse(null, { status: 204 })

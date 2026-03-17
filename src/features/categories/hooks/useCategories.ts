@@ -7,6 +7,7 @@ export interface Category {
   icon: string;
   color: string;
   created_at: string;
+  sort_order: number;
 }
 
 export const CATEGORIES_KEY = ["categories"] as const;
@@ -51,5 +52,29 @@ export function useDeleteCategory() {
   return useMutation({
     mutationFn: (id: number) => api.delete(`/categories/${id}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY }),
+  });
+}
+
+export function useReorderCategories() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (ids: number[]) => api.patch("/categories", { ids }),
+    onMutate: async (ids) => {
+      await queryClient.cancelQueries({ queryKey: CATEGORIES_KEY });
+      const previous = queryClient.getQueryData<Category[]>(CATEGORIES_KEY);
+      const reordered = ids
+        .map((id, i) => {
+          const cat = (previous ?? []).find((c) => c.id === id);
+          return cat ? { ...cat, sort_order: i + 1 } : null;
+        })
+        .filter((c): c is Category => c !== null);
+      queryClient.setQueryData(CATEGORIES_KEY, reordered);
+      return { previous };
+    },
+    onError: (_, __, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(CATEGORIES_KEY, ctx.previous);
+    },
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: CATEGORIES_KEY }),
   });
 }

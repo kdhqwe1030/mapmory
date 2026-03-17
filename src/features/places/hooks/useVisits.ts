@@ -32,8 +32,28 @@ export function useAddVisit() {
       const { data } = await api.post<VisitRecord>("/visits", body);
       return data;
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: visitsKey(data.place_id) });
+    onMutate: async (body) => {
+      await queryClient.cancelQueries({ queryKey: visitsKey(body.place_id) });
+      const previous = queryClient.getQueryData<VisitRecord[]>(visitsKey(body.place_id));
+      const tempVisit: VisitRecord = {
+        id: -Date.now(),
+        place_id: body.place_id,
+        visited_at: body.visited_at,
+        memo: null,
+        created_at: new Date().toISOString(),
+      };
+      queryClient.setQueryData(visitsKey(body.place_id), [
+        tempVisit,
+        ...(previous ?? []),
+      ]);
+      return { previous };
+    },
+    onError: (_, vars, ctx) => {
+      if (ctx?.previous)
+        queryClient.setQueryData(visitsKey(vars.place_id), ctx.previous);
+    },
+    onSettled: (data, _, vars) => {
+      queryClient.invalidateQueries({ queryKey: visitsKey(vars.place_id) });
       queryClient.invalidateQueries({ queryKey: SAVED_PLACES_KEY });
     },
   });
@@ -68,8 +88,21 @@ export function useDeleteVisit() {
       await api.delete(`/visits/${id}`);
       return place_id;
     },
-    onSuccess: (place_id) => {
-      queryClient.invalidateQueries({ queryKey: visitsKey(place_id) });
+    onMutate: async ({ id, place_id }) => {
+      await queryClient.cancelQueries({ queryKey: visitsKey(place_id) });
+      const previous = queryClient.getQueryData<VisitRecord[]>(visitsKey(place_id));
+      queryClient.setQueryData(
+        visitsKey(place_id),
+        (previous ?? []).filter((v) => v.id !== id),
+      );
+      return { previous };
+    },
+    onError: (_, vars, ctx) => {
+      if (ctx?.previous)
+        queryClient.setQueryData(visitsKey(vars.place_id), ctx.previous);
+    },
+    onSettled: (_, __, vars) => {
+      queryClient.invalidateQueries({ queryKey: visitsKey(vars.place_id) });
       queryClient.invalidateQueries({ queryKey: SAVED_PLACES_KEY });
     },
   });

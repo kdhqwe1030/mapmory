@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import EditRounded from "@mui/icons-material/EditRounded";
 import DeleteRounded from "@mui/icons-material/DeleteRounded";
 import CheckRounded from "@mui/icons-material/CheckRounded";
 import CloseRounded from "@mui/icons-material/CloseRounded";
 import AddRounded from "@mui/icons-material/AddRounded";
+import DragHandleRounded from "@mui/icons-material/DragHandleRounded";
 import {
   useCategories,
   useCreateCategory,
   useUpdateCategory,
   useDeleteCategory,
+  useReorderCategories,
   type Category,
 } from "@/src/features/categories/hooks/useCategories";
 import { PRESET_COLORS } from "@/src/features/categories/categoryColors";
@@ -25,6 +27,10 @@ export function CategoryManager() {
   const createCategory = useCreateCategory();
   const updateCategory = useUpdateCategory();
   const deleteCategory = useDeleteCategory();
+  const reorderCategories = useReorderCategories();
+
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState({ icon: "", name: "", color: "" });
@@ -36,6 +42,36 @@ export function CategoryManager() {
   const [isAdding, setIsAdding] = useState(false);
   const [shakeNew, setShakeNew] = useState(false);
   const [shakeEdit, setShakeEdit] = useState(false);
+  const [deletingCategory, setDeletingCategory] = useState<{ id: number; name: string } | null>(null);
+  const [deleteInput, setDeleteInput] = useState("");
+
+  const handleTouchStart = useCallback((index: number) => {
+    setDragIndex(index);
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    const item = el?.closest("[data-drag-index]") as HTMLElement | null;
+    if (item?.dataset.dragIndex !== undefined) {
+      setDragOverIndex(parseInt(item.dataset.dragIndex));
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (
+      dragIndex !== null &&
+      dragOverIndex !== null &&
+      dragIndex !== dragOverIndex
+    ) {
+      const newOrder = [...categories];
+      const [moved] = newOrder.splice(dragIndex, 1);
+      newOrder.splice(dragOverIndex, 0, moved);
+      reorderCategories.mutate(newOrder.map((c) => c.id));
+    }
+    setDragIndex(null);
+    setDragOverIndex(null);
+  }, [dragIndex, dragOverIndex, categories, reorderCategories]);
 
   const handleCreate = () => {
     if (!newForm.name.trim()) return;
@@ -104,6 +140,46 @@ export function CategoryManager() {
 
   return (
     <>
+      {deletingCategory && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6">
+          <div className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-xl">
+            <h3 className="text-base font-bold text-[#3A2E2A] mb-1">카테고리 삭제</h3>
+            <p className="text-sm text-[#6B5B56] mb-1">
+              <span className="font-semibold">{deletingCategory.name}</span> 카테고리와
+            </p>
+            <p className="text-sm text-[#6B5B56] mb-4">관련 저장 장소가 모두 삭제됩니다.</p>
+            <p className="text-xs text-[#9B8B84] mb-2">
+              확인하려면 아래에 <span className="font-bold text-[#C97B7B]">삭제</span>를 입력하세요.
+            </p>
+            <input
+              autoFocus
+              value={deleteInput}
+              onChange={(e) => setDeleteInput(e.target.value)}
+              placeholder="삭제"
+              className="w-full h-11 rounded-xl border border-[#EAD9D0] px-3 text-sm text-[#3A2E2A] focus:outline-none focus:border-[#C97B7B] mb-4"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setDeletingCategory(null); setDeleteInput(""); }}
+                className="flex-1 h-11 rounded-xl border border-[#EAD9D0] text-sm font-medium text-[#6B5B56]"
+              >
+                취소
+              </button>
+              <button
+                disabled={deleteInput !== "삭제"}
+                onClick={() => {
+                  handleDelete(deletingCategory.id);
+                  setDeletingCategory(null);
+                  setDeleteInput("");
+                }}
+                className="flex-1 h-11 rounded-xl text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-[#C97B7B] text-white"
+              >
+                삭제하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <style>{`
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
@@ -137,7 +213,7 @@ export function CategoryManager() {
               카테고리가 없어요
             </p>
           ) : (
-            categories.map((cat) =>
+            categories.map((cat, index) =>
               editingId === cat.id ? (
                 <div
                   key={cat.id}
@@ -200,8 +276,33 @@ export function CategoryManager() {
               ) : (
                 <div
                   key={cat.id}
-                  className="flex items-center gap-3 rounded-2xl bg-white border border-border px-4 py-3"
+                  data-drag-index={String(index)}
+                  draggable
+                  onDragStart={() => setDragIndex(index)}
+                  onDragOver={(e) => { e.preventDefault(); setDragOverIndex(index); }}
+                  onDragEnd={() => { setDragIndex(null); setDragOverIndex(null); }}
+                  onDrop={() => {
+                    if (dragIndex === null || dragIndex === index) return;
+                    const newOrder = [...categories];
+                    const [moved] = newOrder.splice(dragIndex, 1);
+                    newOrder.splice(index, 0, moved);
+                    reorderCategories.mutate(newOrder.map((c) => c.id));
+                  }}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  className="flex items-center gap-3 rounded-2xl bg-white border border-border px-3 py-3 transition-all"
+                  style={{
+                    opacity: dragIndex === index ? 0.4 : 1,
+                    borderColor: dragOverIndex === index && dragIndex !== index ? "#FFDCDC" : undefined,
+                  }}
                 >
+                  {/* 드래그 핸들 */}
+                  <div
+                    className="cursor-grab active:cursor-grabbing shrink-0 touch-none"
+                    onTouchStart={() => handleTouchStart(index)}
+                  >
+                    <DragHandleRounded sx={{ fontSize: 20, color: "#C4B4AC" }} />
+                  </div>
                   <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
                     style={{ background: cat.color ?? "#FFF2EB" }}
@@ -218,7 +319,7 @@ export function CategoryManager() {
                     <EditRounded sx={{ fontSize: 16, color: "#9B8B84" }} />
                   </button>
                   <button
-                    onClick={() => handleDelete(cat.id)}
+                    onClick={() => { setDeletingCategory({ id: cat.id, name: cat.name }); setDeleteInput(""); }}
                     className="w-7 h-7 flex items-center justify-center"
                   >
                     <DeleteRounded sx={{ fontSize: 16, color: "#9B8B84" }} />
