@@ -118,7 +118,7 @@ export function BottomSheet({
         </div>
       ) : (
         <div
-          className="flex items-center pt-3 pb-1 shrink-0 touch-none select-none"
+          className="flex items-center pt-4 pb-2 shrink-0 touch-none select-none"
           onTouchStart={(e) => onDragStart(e.touches[0].clientY)}
           onTouchMove={(e) => onDragMove(e.touches[0].clientY)}
           onTouchEnd={onDragEnd}
@@ -134,19 +134,19 @@ export function BottomSheet({
                 <ArrowBackRounded sx={{ fontSize: 18 }} />
                 <span>뒤로</span>
               </button>
-              <div className="flex-1 flex justify-center cursor-grab active:cursor-grabbing">
+              <div className="flex-1 flex justify-center mb-3 cursor-grab active:cursor-grabbing">
                 <div className="w-10 h-1 rounded-full bg-border" />
               </div>
               <div className="w-12" />
             </div>
           ) : (
-            <div className="flex-1 flex justify-center cursor-grab active:cursor-grabbing">
+            <div className="flex-1 flex justify-center mb-3 cursor-grab active:cursor-grabbing">
               <div className="w-10 h-1 rounded-full bg-border" />
             </div>
           )}
         </div>
       )}
-      <div className="flex-1 overflow-y-auto overscroll-contain">
+      <div className="flex-1 overflow-y-auto overscroll-contain pb-4">
         {children}
       </div>
     </div>
