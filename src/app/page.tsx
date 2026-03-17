@@ -17,6 +17,7 @@ import { MyLocationButton } from "@/src/components/ui/MyLocationButton";
 import ArrowBackRounded from "@mui/icons-material/ArrowBackRounded";
 import { FloatingNavButton } from "@/src/components/ui/FloatingNavButton";
 import { useSavedPlaces } from "@/src/features/places/hooks/useSavedPlaces";
+import { useCategories } from "@/src/features/categories/hooks/useCategories";
 
 interface LatLng {
   lat: number;
@@ -42,6 +43,7 @@ function haversineDistance(
 
 export default function Home() {
   const { data: savedPlaces = [] } = useSavedPlaces();
+  const { data: allCategoriesOrdered = [] } = useCategories();
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
   const [visitFilter, setVisitFilter] = useState<
     "all" | "visited" | "not_visited"
@@ -205,17 +207,11 @@ export default function Home() {
   }, [savedPlaces, currentPosition]);
 
   const allCategories = useMemo(() => {
-    const seen = new Set<number>();
-    const cats: { id: number; name: string; icon: string; color: string }[] =
-      [];
-    savedPlaces.forEach((sp) => {
-      if (sp.categories && !seen.has(sp.categories.id)) {
-        seen.add(sp.categories.id);
-        cats.push(sp.categories);
-      }
-    });
-    return cats;
-  }, [savedPlaces]);
+    const usedIds = new Set(
+      savedPlaces.map((sp) => sp.category_id).filter((id): id is number => id !== null)
+    );
+    return allCategoriesOrdered.filter((cat) => usedIds.has(cat.id));
+  }, [savedPlaces, allCategoriesOrdered]);
 
   const filteredPlaces = useMemo(() => {
     let base = nearbySavedPlaces;
