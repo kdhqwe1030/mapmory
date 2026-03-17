@@ -43,7 +43,9 @@ function haversineDistance(
 export default function Home() {
   const { data: savedPlaces = [] } = useSavedPlaces();
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
-  const [visitFilter, setVisitFilter] = useState<"all" | "visited" | "not_visited">("all");
+  const [visitFilter, setVisitFilter] = useState<
+    "all" | "visited" | "not_visited"
+  >("all");
   const [currentPosition, setCurrentPosition] = useState<LatLng | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<SelectedPlace | null>(
     null,
@@ -52,23 +54,26 @@ export default function Home() {
   const [showRedMarker, setShowRedMarker] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(320);
 
-  const handleResizeStart = useCallback((e: React.MouseEvent) => {
-    const startX = e.clientX;
-    const startWidth = sidebarWidth;
-    document.body.classList.add("select-none");
+  const handleResizeStart = useCallback(
+    (e: React.MouseEvent) => {
+      const startX = e.clientX;
+      const startWidth = sidebarWidth;
+      document.body.classList.add("select-none");
 
-    const onMove = (e: MouseEvent) => {
-      const newWidth = startWidth + (e.clientX - startX);
-      setSidebarWidth(Math.max(240, Math.min(600, newWidth)));
-    };
-    const onUp = () => {
-      document.body.classList.remove("select-none");
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-    };
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
-  }, [sidebarWidth]);
+      const onMove = (e: MouseEvent) => {
+        const newWidth = startWidth + (e.clientX - startX);
+        setSidebarWidth(Math.max(240, Math.min(600, newWidth)));
+      };
+      const onUp = () => {
+        document.body.classList.remove("select-none");
+        window.removeEventListener("mousemove", onMove);
+        window.removeEventListener("mouseup", onUp);
+      };
+      window.addEventListener("mousemove", onMove);
+      window.addEventListener("mouseup", onUp);
+    },
+    [sidebarWidth],
+  );
   const [selectedSavedPlaceId, setSelectedSavedPlaceId] = useState<
     number | null
   >(null);
@@ -201,7 +206,8 @@ export default function Home() {
 
   const allCategories = useMemo(() => {
     const seen = new Set<number>();
-    const cats: { id: number; name: string; icon: string; color: string }[] = [];
+    const cats: { id: number; name: string; icon: string; color: string }[] =
+      [];
     savedPlaces.forEach((sp) => {
       if (sp.categories && !seen.has(sp.categories.id)) {
         seen.add(sp.categories.id);
@@ -215,11 +221,15 @@ export default function Home() {
     let base = nearbySavedPlaces;
     if (selectedCategoryIds.length > 0) {
       base = base.filter(
-        (sp) => sp.category_id !== null && selectedCategoryIds.includes(sp.category_id),
+        (sp) =>
+          sp.category_id !== null &&
+          selectedCategoryIds.includes(sp.category_id),
       );
     }
-    if (visitFilter === "visited") return base.filter((sp) => sp.visit_status === "visited");
-    if (visitFilter === "not_visited") return base.filter((sp) => sp.visit_status !== "visited");
+    if (visitFilter === "visited")
+      return base.filter((sp) => sp.visit_status === "visited");
+    if (visitFilter === "not_visited")
+      return base.filter((sp) => sp.visit_status !== "visited");
     return base;
   }, [nearbySavedPlaces, selectedCategoryIds, visitFilter]);
 
@@ -227,11 +237,15 @@ export default function Home() {
     let base = savedPlaces;
     if (selectedCategoryIds.length > 0) {
       base = base.filter(
-        (sp) => sp.category_id !== null && selectedCategoryIds.includes(sp.category_id),
+        (sp) =>
+          sp.category_id !== null &&
+          selectedCategoryIds.includes(sp.category_id),
       );
     }
-    if (visitFilter === "visited") return base.filter((sp) => sp.visit_status === "visited");
-    if (visitFilter === "not_visited") return base.filter((sp) => sp.visit_status !== "visited");
+    if (visitFilter === "visited")
+      return base.filter((sp) => sp.visit_status === "visited");
+    if (visitFilter === "not_visited")
+      return base.filter((sp) => sp.visit_status !== "visited");
     return base;
   }, [savedPlaces, selectedCategoryIds, visitFilter]);
 
@@ -244,13 +258,25 @@ export default function Home() {
         <div className="flex gap-1">
           {(
             [
-              { key: "visited", label: "방문완료", color: "#4CAF82", bg: "#E8F8F0" },
-              { key: "not_visited", label: "방문예정", color: "#F56F86", bg: "#FFDCDC" },
+              {
+                key: "visited",
+                label: "방문완료",
+                color: "#4CAF82",
+                bg: "#E8F8F0",
+              },
+              {
+                key: "not_visited",
+                label: "방문예정",
+                color: "#F56F86",
+                bg: "#FFDCDC",
+              },
             ] as const
           ).map(({ key, label, color, bg }) => (
             <button
               key={key}
-              onClick={() => setVisitFilter((prev) => (prev === key ? "all" : key))}
+              onClick={() =>
+                setVisitFilter((prev) => (prev === key ? "all" : key))
+              }
               className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all"
               style={
                 visitFilter === key
@@ -306,14 +332,22 @@ export default function Home() {
     <main className="flex h-screen w-screen overflow-hidden">
       {/* Desktop sidebar - hidden on mobile */}
       <aside
-        className="hidden md:flex md:flex-col relative shrink-0 h-full bg-white shadow-[2px_0_24px_rgba(58,46,42,0.08)] z-400 overflow-hidden"
+        className="hidden md:flex md:flex-col relative shrink-0 h-full bg-white shadow-[2px_0_24px_rgba(58,46,42,0.08)] z-400 "
         style={{ width: sidebarWidth }}
       >
         {/* 리사이즈 핸들 */}
         <div
           onMouseDown={handleResizeStart}
-          className="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-[#FFDCDC] transition-colors z-10"
-        />
+          className="absolute -right-2 top-0 h-full w-4 cursor-col-resize z-10 flex items-center justify-center group"
+        >
+          <div className="w-4 h-10 rounded-full bg-[#EAD9D0] group-hover:bg-[#FFDCDC] transition-all shadow-sm flex items-center justify-center">
+            <div className="flex flex-col gap-[3px]">
+              <div className="w-[3px] h-[3px] rounded-full bg-[#9B8B84]" />
+              <div className="w-[3px] h-[3px] rounded-full bg-[#9B8B84]" />
+              <div className="w-[3px] h-[3px] rounded-full bg-[#9B8B84]" />
+            </div>
+          </div>
+        </div>
         {selectedPlace && (
           <div className="flex items-center px-4 pt-4 pb-3 shrink-0 border-b border-border">
             <button
