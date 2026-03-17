@@ -13,7 +13,7 @@ import {
 } from "@/src/features/places/components/PlaceDetail";
 import { BottomSheet } from "@/src/components/ui/BottomSheet";
 import { getCategoryTextColor } from "@/src/features/categories/categoryColors";
-import MyLocationRounded from "@mui/icons-material/MyLocationRounded";
+import { MyLocationButton } from "@/src/components/ui/MyLocationButton";
 import ArrowBackRounded from "@mui/icons-material/ArrowBackRounded";
 import { FloatingNavButton } from "@/src/components/ui/FloatingNavButton";
 import { useSavedPlaces } from "@/src/features/places/hooks/useSavedPlaces";
@@ -357,14 +357,8 @@ export default function Home() {
           </div>
         )}
 
-        {/* 현재 위치 재검색 버튼 (검색바 아래 우측) */}
-        <button
-          onClick={handleRecenter}
-          className="absolute right-4 z-10 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-[0_4px_20px_rgba(58,46,42,0.12)] flex items-center justify-center hover:bg-white transition-colors"
-          style={{ top: "80px" }}
-        >
-          <MyLocationRounded sx={{ fontSize: 20, color: "#6B5B56" }} />
-        </button>
+        {/* 현재 위치 재검색 버튼 */}
+        <MyLocationButton onClick={handleRecenter} />
 
         {/* 페이지 전환 버튼 */}
         <FloatingNavButton />
