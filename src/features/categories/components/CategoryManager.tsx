@@ -36,6 +36,8 @@ export function CategoryManager() {
   const [isAdding, setIsAdding] = useState(false);
   const [shakeNew, setShakeNew] = useState(false);
   const [shakeEdit, setShakeEdit] = useState(false);
+  const [deletingCategory, setDeletingCategory] = useState<{ id: number; name: string } | null>(null);
+  const [deleteInput, setDeleteInput] = useState("");
 
   const handleCreate = () => {
     if (!newForm.name.trim()) return;
@@ -104,6 +106,46 @@ export function CategoryManager() {
 
   return (
     <>
+      {deletingCategory && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6">
+          <div className="w-full max-w-sm bg-white rounded-3xl p-6 shadow-xl">
+            <h3 className="text-base font-bold text-[#3A2E2A] mb-1">카테고리 삭제</h3>
+            <p className="text-sm text-[#6B5B56] mb-1">
+              <span className="font-semibold">{deletingCategory.name}</span> 카테고리와
+            </p>
+            <p className="text-sm text-[#6B5B56] mb-4">관련 저장 장소가 모두 삭제됩니다.</p>
+            <p className="text-xs text-[#9B8B84] mb-2">
+              확인하려면 아래에 <span className="font-bold text-[#C97B7B]">삭제</span>를 입력하세요.
+            </p>
+            <input
+              autoFocus
+              value={deleteInput}
+              onChange={(e) => setDeleteInput(e.target.value)}
+              placeholder="삭제"
+              className="w-full h-11 rounded-xl border border-[#EAD9D0] px-3 text-sm text-[#3A2E2A] focus:outline-none focus:border-[#C97B7B] mb-4"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setDeletingCategory(null); setDeleteInput(""); }}
+                className="flex-1 h-11 rounded-xl border border-[#EAD9D0] text-sm font-medium text-[#6B5B56]"
+              >
+                취소
+              </button>
+              <button
+                disabled={deleteInput !== "삭제"}
+                onClick={() => {
+                  handleDelete(deletingCategory.id);
+                  setDeletingCategory(null);
+                  setDeleteInput("");
+                }}
+                className="flex-1 h-11 rounded-xl text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-[#C97B7B] text-white"
+              >
+                삭제하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <style>{`
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
@@ -218,7 +260,7 @@ export function CategoryManager() {
                     <EditRounded sx={{ fontSize: 16, color: "#9B8B84" }} />
                   </button>
                   <button
-                    onClick={() => handleDelete(cat.id)}
+                    onClick={() => { setDeletingCategory({ id: cat.id, name: cat.name }); setDeleteInput(""); }}
                     className="w-7 h-7 flex items-center justify-center"
                   >
                     <DeleteRounded sx={{ fontSize: 16, color: "#9B8B84" }} />
